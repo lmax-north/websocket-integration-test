@@ -70,7 +70,7 @@ public class Client implements Requests
     }
 
     @Override
-    public Future<Result<OptionsResponse, String>> requestOptions()
+    public Future<Result<OptionsResponse, String>> fetchOptions()
     {
         return executorLayer.send(new OptionsRequest());
     }

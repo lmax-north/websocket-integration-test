@@ -24,7 +24,7 @@ public class ClientVertxDriver
 
     public Future<Result<OptionsResponse, String>> requestOptions()
     {
-        return client.requestOptions()
+        return client.fetchOptions()
                 .onFailure(t -> System.out.println("ERROR:" + t.getMessage()));
     }
 

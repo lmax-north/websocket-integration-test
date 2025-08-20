@@ -6,5 +6,5 @@ import io.vertx.core.Future;
 
 public interface Requests
 {
-    Future<Result<OptionsResponse, String>> requestOptions();
+    Future<Result<OptionsResponse, String>> fetchOptions();
 }
