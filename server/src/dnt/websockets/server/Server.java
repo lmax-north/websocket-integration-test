@@ -16,10 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
+import static dnt.websockets.server.Source.getSource;
 import static dnt.websockets.vertx.VertxFactory.newVertx;
 
 public class Server
@@ -29,7 +28,7 @@ public class Server
 
     private final ObjectMapper objectMapper;
     private final ObjectReader messageReader;
-    private final List<WebsocketTextMessageHandler> websocketTextMessageHandlers = new ArrayList<>();
+    private final Map<String, WebsocketTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
 
     public Server()
     {
@@ -52,29 +51,30 @@ public class Server
 
     private void handle(ServerWebSocket serverWebSocket)
     {
-        if (!serverWebSocket.path().startsWith("/v1/websocket"))
+        URI uri = URI.create(serverWebSocket.path());
+        if (!uri.toString().startsWith("/v1/websocket"))
         {
             LOGGER.warn("Failed to connect websocket");
             serverWebSocket.close(WEBSOCKET_CODE_FAILED_TO_CONNECT);
             return;
         }
-        LOGGER.debug("Websocket connected {}", serverWebSocket.path());
+        LOGGER.debug("Websocket connected {}", uri);
 
         MessagePublisher messagePublisher = new MessagePublisher(serverWebSocket, objectMapper);
         WebsocketTextMessageHandler textMessageHandler = new WebsocketTextMessageHandler(messageReader, messagePublisher);
         serverWebSocket.textMessageHandler(textMessageHandler);
-        websocketTextMessageHandlers.add(textMessageHandler);
+        sourceToTextMessageHandlers.put(getSource(uri).name(), textMessageHandler);
     }
 
     public void broadcastMessage(AbstractMessage message)
     {
-        Iterator<WebsocketTextMessageHandler> iterator = websocketTextMessageHandlers.iterator();
+        Iterator<Map.Entry<String, WebsocketTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
         while (iterator.hasNext())
         {
             WebsocketTextMessageHandler next;
             try
             {
-                next = iterator.next();
+                next = iterator.next().getValue();
                 next.write(message);
             }
             catch (Exception e)
