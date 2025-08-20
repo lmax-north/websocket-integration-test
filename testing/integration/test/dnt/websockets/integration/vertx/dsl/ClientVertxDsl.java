@@ -5,12 +5,13 @@ import dnt.websockets.communications.OptionsResponse;
 import dnt.websockets.integration.vertx.ClientVertxDriver;
 import education.common.result.Result;
 import io.vertx.core.Future;
+import org.awaitility.Awaitility;
+import org.hamcrest.CoreMatchers;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-
+import static java.time.Duration.ofMillis;
+import static java.time.Duration.ofSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.PATH;
 
 public class ClientVertxDsl
 {
@@ -35,23 +36,28 @@ public class ClientVertxDsl
 
     public void verifyMessage(String className)
     {
-        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                AbstractMessage message = clientDriver.popLastMessage();
-                while(message == null || !message.getClass().getSimpleName().equalsIgnoreCase(className))
+        Awaitility
+                .await()
+                .pollInterval(ofMillis(100))
+                .atMost(ofSeconds(2))
+                .untilAsserted(() ->
                 {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    message = clientDriver.popLastMessage();
-                }
-            }
-        });
+                    AbstractMessage message = clientDriver.popLastMessage();
+                    assertThat(message).isNotNull();
+                    assertThat(message.getClass().getSimpleName()).isEqualToIgnoringCase(className);
+                });
+    }
 
-        assertThat(completableFuture)
-                .succeedsWithin(5, TimeUnit.SECONDS);
+    public void verifyNoMessage()
+    {
+        Awaitility
+                .await()
+                .pollInterval(ofMillis(100))
+                .during(ofSeconds(2))
+                .atMost(ofSeconds(3))
+                .until(() -> {
+                    AbstractMessage abstractMessage = clientDriver.popLastMessage();
+                    return abstractMessage == null;
+                });
     }
 }

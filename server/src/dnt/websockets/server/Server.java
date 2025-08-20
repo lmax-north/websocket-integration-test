@@ -67,7 +67,7 @@ public class Server
         sourceToTextMessageHandlers.put(getSource(uri).name(), textMessageHandler);
     }
 
-    public void broadcastMessage(AbstractMessage message)
+    public void broadcast(AbstractMessage message)
     {
         Iterator<Map.Entry<String, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
         while (iterator.hasNext())
@@ -76,7 +76,7 @@ public class Server
             try
             {
                 next = iterator.next().getValue();
-                next.broadcast(message);
+                next.send(message);
             }
             catch (Exception e)
             {
@@ -84,5 +84,10 @@ public class Server
                 LOGGER.error("Error writing message", e);
             }
         }
+    }
+
+    public void unicast(String source, AbstractMessage message)
+    {
+        sourceToTextMessageHandlers.get(source).send(message);
     }
 }

@@ -6,6 +6,7 @@ import java.util.Locale;
 public enum Source
 {
     SOURCE1,
+    SOURCE2,
     UNKNOWN;
 
     public static Source getSource(URI uri)

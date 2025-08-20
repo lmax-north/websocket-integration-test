@@ -1,6 +1,7 @@
 package dnt.websockets.integration;
 
 import dnt.websockets.integration.dsl.AbstractIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class IntegrationTest extends AbstractIntegrationTest
@@ -20,6 +21,7 @@ public class IntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
+    @Ignore("Ignored: Not implemented")
     public void serverShouldUnicastMessage()
     {
         server.unicastMessage("Source1");

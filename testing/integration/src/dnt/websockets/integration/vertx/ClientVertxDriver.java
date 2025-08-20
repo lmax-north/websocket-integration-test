@@ -14,9 +14,9 @@ public class ClientVertxDriver
     private final Client client;
     private final Queue<AbstractMessage> broadcastMessages = new LinkedList<>();
 
-    public ClientVertxDriver()
+    public ClientVertxDriver(String source)
     {
-        client = new Client(broadcastMessages::add);
+        client = new Client(source, broadcastMessages::add);
         client.run()
                 .onFailure(t -> System.out.println("ERROR:" + t.getMessage()))
                 .toCompletionStage().toCompletableFuture().join();

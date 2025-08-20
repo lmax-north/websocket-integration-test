@@ -15,5 +15,6 @@
     <orderEntry type="library" name="io.vertx.web" level="project" />
     <orderEntry type="library" scope="TEST" name="junit" level="project" />
     <orderEntry type="library" scope="TEST" name="assertj.core" level="project" />
+    <orderEntry type="library" scope="TEST" name="awaitility" level="project" />
   </component>
 </module>

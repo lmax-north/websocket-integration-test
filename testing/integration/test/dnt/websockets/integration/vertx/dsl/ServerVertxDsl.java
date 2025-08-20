@@ -15,4 +15,9 @@ public class ServerVertxDsl
     {
         serverDriver.broadcastMessage();
     }
+
+    public void unicastMessage(String source)
+    {
+        serverDriver.unicast(source);
+    }
 }

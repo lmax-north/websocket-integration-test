@@ -37,7 +37,7 @@ class ServerTextMessageHandler implements Handler<String>
         }
     }
 
-    public void broadcast(AbstractMessage message)
+    public void send(AbstractMessage message)
     {
         executionLayer.broadcast(message);
     }

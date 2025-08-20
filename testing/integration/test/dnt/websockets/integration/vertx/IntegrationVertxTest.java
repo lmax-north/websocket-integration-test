@@ -1,6 +1,7 @@
 package dnt.websockets.integration.vertx;
 
 import dnt.websockets.integration.vertx.dsl.AbstractIntegrationVertxTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class IntegrationVertxTest extends AbstractIntegrationVertxTest
@@ -18,5 +19,14 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
         server.broadcastMessage();
 
         client.verifyMessage("PushMessage");
+    }
+
+    @Test
+    public void serverShouldUnicast()
+    {
+        server.unicastMessage("SOURCE2");
+
+        client("source1").verifyNoMessage();
+        client("source2").verifyMessage("PushMessage");
     }
 }
