@@ -14,6 +14,7 @@ import io.vertx.core.http.WebSocketConnectOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -29,13 +30,19 @@ public class Client implements Requests
 
     private Vertx vertx;
     private WebSocketExecutorLayer executorLayer;
+    private URI uri;
 
     public Client()
+    {
+        this("SOURCE1");
+    }
+    public Client(String source)
     {
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         mapper.registerSubtypes(new NamedType(OptionsResponse.class, OptionsResponse.class.getSimpleName()));
         mapper.registerSubtypes(new NamedType(PushMessage.class, PushMessage.class.getSimpleName()));
         messageReader = mapper.readerFor(AbstractMessage.class);
+        uri = URI.create("/v1/websocket/").resolve(source);
     }
 
     public Future<WebSocket> run()
@@ -44,7 +51,7 @@ public class Client implements Requests
         HttpClient httpClient = vertx.createHttpClient();
 
         WebSocketConnectOptions options = new WebSocketConnectOptions()
-                .setURI("/v1/websocket")
+                .setURI(uri.toString())
                 .setHost("localhost")
                 .setPort(7777);
         options.setTimeout(3000);

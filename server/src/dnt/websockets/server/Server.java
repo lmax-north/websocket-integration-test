@@ -15,6 +15,7 @@ import io.vertx.core.http.ServerWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,12 +52,13 @@ public class Server
 
     private void handle(ServerWebSocket serverWebSocket)
     {
-        if (!"/v1/websocket".equals(serverWebSocket.path()))
+        if (!serverWebSocket.path().startsWith("/v1/websocket"))
         {
             LOGGER.warn("Failed to connect websocket");
             serverWebSocket.close(WEBSOCKET_CODE_FAILED_TO_CONNECT);
             return;
         }
+        LOGGER.debug("Websocket connected {}", serverWebSocket.path());
 
         MessagePublisher messagePublisher = new MessagePublisher(serverWebSocket, objectMapper);
         WebsocketTextMessageHandler textMessageHandler = new WebsocketTextMessageHandler(messageReader, messagePublisher);
