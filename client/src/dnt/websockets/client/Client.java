@@ -26,15 +26,11 @@ public class Client implements Requests
     private final ObjectMapper mapper;
     private final ObjectReader messageReader;
     private final Consumer<AbstractMessage> messageConsumer;
+    private final URI uri;
 
     private Vertx vertx;
     private ClientExecutionLayer executorLayer;
-    private URI uri;
 
-    public Client(Consumer<AbstractMessage> messageConsumer)
-    {
-        this("SOURCE1", messageConsumer);
-    }
     public Client(String source, Consumer<AbstractMessage> messageConsumer)
     {
         this.messageConsumer = messageConsumer;
