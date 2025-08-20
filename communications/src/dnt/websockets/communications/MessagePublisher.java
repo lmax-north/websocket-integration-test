@@ -13,7 +13,6 @@ public class MessagePublisher implements Publisher
 
     private final WebSocketBase serverWebSocket;
     private final ObjectMapper objectMapper;
-    private long nextCorrelationId = 1;
 
     public MessagePublisher(WebSocketBase serverWebSocket, ObjectMapper objectMapper)
     {
@@ -39,8 +38,19 @@ public class MessagePublisher implements Publisher
     }
 
     @Override
-    public synchronized long getNextCorrelationId()
+    public void send(String source, AbstractMessage message)
     {
-        return nextCorrelationId++;
+        LOGGER.debug("Sending {}", message);
+        try
+        {
+            String s = objectMapper.writeValueAsString(message);
+            System.out.println(s);
+            serverWebSocket.writeTextMessage(s);
+        }
+        catch (JsonProcessingException e)
+        {
+            serverWebSocket.close(WEBSOCKET_CODE_FAILED_TO_SEND_RESPONSE);
+            throw new RuntimeException("Failed to serialize message", e);
+        }
     }
 }

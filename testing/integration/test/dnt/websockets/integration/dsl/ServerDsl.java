@@ -1,6 +1,6 @@
 package dnt.websockets.integration.dsl;
 
-import dnt.websockets.client.ExecutionLayer;
+import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.integration.ServerDriver;
 
 public class ServerDsl
@@ -15,5 +15,10 @@ public class ServerDsl
     public void broadcastMessage()
     {
         serverDriver.broadcastMessage();
+    }
+
+    public void unicastMessage(String source)
+    {
+        serverDriver.unicastMessage(source);
     }
 }

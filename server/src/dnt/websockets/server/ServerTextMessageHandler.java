@@ -2,27 +2,24 @@ package dnt.websockets.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectReader;
-import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.AbstractRequest;
-import dnt.websockets.communications.MessagePublisher;
-import dnt.websockets.communications.RequestVisitor;
+import dnt.websockets.communications.*;
 import io.vertx.core.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class WebsocketTextMessageHandler implements Handler<String>
+class ServerTextMessageHandler implements Handler<String>
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketTextMessageHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerTextMessageHandler.class);
 
     private final ObjectReader messageReader;
-    private final MessagePublisher messagePublisher;
     private final RequestVisitor processor;
+    private final ExecutionLayer executionLayer;
 
-    WebsocketTextMessageHandler(ObjectReader messageReader, MessagePublisher messagePublisher)
+    ServerTextMessageHandler(ObjectReader messageReader, ExecutionLayer executionLayer)
     {
         this.messageReader = messageReader;
-        this.messagePublisher = messagePublisher;
-        this.processor = new RequestProcessor(messagePublisher);
+        this.processor = new RequestProcessor(executionLayer);
+        this.executionLayer = executionLayer;
     }
 
     @Override
@@ -40,8 +37,8 @@ class WebsocketTextMessageHandler implements Handler<String>
         }
     }
 
-    public void write(AbstractMessage message)
+    public void broadcast(AbstractMessage message)
     {
-        messagePublisher.send(message);
+        executionLayer.broadcast(message);
     }
 }

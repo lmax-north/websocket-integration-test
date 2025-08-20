@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.AbstractRequest;
-import dnt.websockets.communications.MessagePublisher;
-import dnt.websockets.communications.OptionsRequest;
+import dnt.websockets.communications.*;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -16,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static dnt.websockets.server.Source.getSource;
 import static dnt.websockets.vertx.VertxFactory.newVertx;
@@ -28,7 +27,7 @@ public class Server
 
     private final ObjectMapper objectMapper;
     private final ObjectReader messageReader;
-    private final Map<String, WebsocketTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
+    private final Map<String, ServerTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
 
     public Server()
     {
@@ -61,21 +60,23 @@ public class Server
         LOGGER.debug("Websocket connected {}", uri);
 
         MessagePublisher messagePublisher = new MessagePublisher(serverWebSocket, objectMapper);
-        WebsocketTextMessageHandler textMessageHandler = new WebsocketTextMessageHandler(messageReader, messagePublisher);
+        ExecutionLayer executionLayer = new ServerExecutionLayer(messagePublisher);
+
+        ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(messageReader, executionLayer);
         serverWebSocket.textMessageHandler(textMessageHandler);
         sourceToTextMessageHandlers.put(getSource(uri).name(), textMessageHandler);
     }
 
     public void broadcastMessage(AbstractMessage message)
     {
-        Iterator<Map.Entry<String, WebsocketTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
+        Iterator<Map.Entry<String, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
         while (iterator.hasNext())
         {
-            WebsocketTextMessageHandler next;
+            ServerTextMessageHandler next;
             try
             {
                 next = iterator.next().getValue();
-                next.write(message);
+                next.broadcast(message);
             }
             catch (Exception e)
             {

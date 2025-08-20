@@ -12,9 +12,17 @@ public class IntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
-    public void shouldPushMessage()
+    public void serverShouldBroadcastMessage()
     {
         server.broadcastMessage();
+
+        client.verifyMessage("PushMessage");
+    }
+
+    @Test
+    public void serverShouldUnicastMessage()
+    {
+        server.unicastMessage("Source1");
 
         client.verifyMessage("PushMessage");
     }

@@ -10,15 +10,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-class WebSocketTextMessageHandler implements Handler<String>
+class ClientTextMessageHandler implements Handler<String>
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketTextMessageHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientTextMessageHandler.class);
 
     private final ObjectReader messageReader;
-    private final WebSocketExecutorLayer executorLayer;
+    private final ClientExecutionLayer executorLayer;
     private final List<Listener> listeners;
 
-    WebSocketTextMessageHandler(ObjectReader messageReader, WebSocketExecutorLayer executorLayer, Listener... listeners)
+    ClientTextMessageHandler(ObjectReader messageReader, ClientExecutionLayer executorLayer, Listener... listeners)
     {
         this.messageReader = messageReader;
         this.executorLayer = executorLayer;

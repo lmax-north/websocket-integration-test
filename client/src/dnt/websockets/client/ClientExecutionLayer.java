@@ -8,12 +8,12 @@ import io.vertx.core.Vertx;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class WebSocketExecutorLayer
+public class ClientExecutionLayer implements ExecutionLayer
 {
     private final MessagePublisher messagePublisher;
     private final VertxAsyncExecutor<AbstractResponse> executor;
 
-    public WebSocketExecutorLayer(Vertx vertx, MessagePublisher messagePublisher)
+    public ClientExecutionLayer(Vertx vertx, MessagePublisher messagePublisher)
     {
         this.messagePublisher = messagePublisher;
         VertxAsyncExecutor.UniqueIdGenerator uniqueIdGenerator = new VertxAsyncExecutor.UniqueIdGenerator()
@@ -29,6 +29,19 @@ public class WebSocketExecutorLayer
         this.executor = new VertxAsyncExecutor<>(vertx, uniqueIdGenerator);
     }
 
+    @Override
+    public void broadcast(AbstractMessage pushMessage)
+    {
+        throw new UnsupportedOperationException("Client not broadcasting to server");
+    }
+
+    @Override
+    public void unicast(String source, AbstractMessage pushMessage)
+    {
+        throw new UnsupportedOperationException("Client not unicasting to server");
+    }
+
+    @Override
     public <T extends AbstractResponse> Future<Result<T, String>> send(AbstractRequest request)
     {
         return executor.execute(correlationId -> messagePublisher.send(request.attachCorrelationId(correlationId)))
@@ -39,8 +52,9 @@ public class WebSocketExecutorLayer
                         result.map(s -> (T)s, Object::toString));
     }
 
-    public void onResponseReceived(long correlationId, OptionsResponse optionsResponse)
+    @Override
+    public void notifyResponseReceived(AbstractResponse response)
     {
-        executor.onResponseReceived(correlationId, optionsResponse);
+        executor.onResponseReceived(response.correlationId, response);
     }
 }

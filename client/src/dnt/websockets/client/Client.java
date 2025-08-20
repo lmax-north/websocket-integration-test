@@ -15,8 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.function.Consumer;
 
 import static dnt.websockets.vertx.VertxFactory.newVertx;
 
@@ -26,18 +25,19 @@ public class Client implements Requests
 
     private final ObjectMapper mapper;
     private final ObjectReader messageReader;
-    private final Queue<AbstractMessage> broadcastMessages = new LinkedList<>();
+    private final Consumer<AbstractMessage> messageConsumer;
 
     private Vertx vertx;
-    private WebSocketExecutorLayer executorLayer;
+    private ClientExecutionLayer executorLayer;
     private URI uri;
 
-    public Client()
+    public Client(Consumer<AbstractMessage> messageConsumer)
     {
-        this("SOURCE1");
+        this("SOURCE1", messageConsumer);
     }
-    public Client(String source)
+    public Client(String source, Consumer<AbstractMessage> messageConsumer)
     {
+        this.messageConsumer = messageConsumer;
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         mapper.registerSubtypes(new NamedType(OptionsResponse.class, OptionsResponse.class.getSimpleName()));
         mapper.registerSubtypes(new NamedType(PushMessage.class, PushMessage.class.getSimpleName()));
@@ -56,24 +56,22 @@ public class Client implements Requests
                 .setPort(7777);
         options.setTimeout(3000);
         return httpClient.webSocket(options)
-                .onSuccess(webSocket -> {
-                    MessagePublisher messagePublisher = new MessagePublisher(webSocket, mapper);
-                    executorLayer = new WebSocketExecutorLayer(vertx, messagePublisher);
-
-                    WebSocketTextMessageHandler messageHandler = new WebSocketTextMessageHandler(messageReader, executorLayer, broadcastMessages::add);
-                    webSocket.textMessageHandler(messageHandler);
-                })
+                .onSuccess(this::handle)
                 .onFailure(t -> LOGGER.error("Failed to start client.", t));
+    }
+
+    private void handle(WebSocket webSocket)
+    {
+        MessagePublisher messagePublisher = new MessagePublisher(webSocket, mapper);
+        executorLayer = new ClientExecutionLayer(vertx, messagePublisher);
+
+        ClientTextMessageHandler messageHandler = new ClientTextMessageHandler(messageReader, executorLayer, messageConsumer::accept);
+        webSocket.textMessageHandler(messageHandler);
     }
 
     @Override
     public Future<Result<OptionsResponse, String>> requestOptions()
     {
         return executorLayer.send(new OptionsRequest());
-    }
-
-    public AbstractMessage popLastMessage()
-    {
-        return broadcastMessages.poll();
     }
 }

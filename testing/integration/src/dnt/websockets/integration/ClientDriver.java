@@ -17,7 +17,7 @@ public class ClientDriver
 
     public Future<Result<OptionsResponse, String>> fetchOptions()
     {
-        return executionLayer.sendClientToServer(new OptionsRequest());
+        return executionLayer.send(new OptionsRequest());
     }
 
     public AbstractMessage getLastMessage()

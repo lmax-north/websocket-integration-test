@@ -1,6 +1,6 @@
 package dnt.websockets.integration;
 
-import dnt.websockets.client.ExecutionLayer;
+import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.communications.PushMessage;
 
 public class ServerDriver
@@ -14,6 +14,11 @@ public class ServerDriver
 
     public void broadcastMessage()
     {
-        executionLayer.broadcastServerToClient(new PushMessage());
+        executionLayer.broadcast(new PushMessage());
+    }
+
+    public void unicastMessage(String source)
+    {
+        executionLayer.unicast(source, new PushMessage());
     }
 }

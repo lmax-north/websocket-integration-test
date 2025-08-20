@@ -4,16 +4,16 @@ import dnt.websockets.communications.*;
 
 public class ResponseProcessor implements ResponseVisitor
 {
-    private final WebSocketExecutorLayer executor;
+    private final ExecutionLayer execution;
 
-    public ResponseProcessor(WebSocketExecutorLayer executor)
+    public ResponseProcessor(ExecutionLayer execution)
     {
-        this.executor = executor;
+        this.execution = execution;
     }
 
     @Override
     public void visit(OptionsResponse optionsResponse)
     {
-        executor.onResponseReceived(optionsResponse.correlationId, optionsResponse);
+        execution.notifyResponseReceived(optionsResponse);
     }
 }

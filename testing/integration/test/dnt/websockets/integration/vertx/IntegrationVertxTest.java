@@ -13,7 +13,7 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
     }
 
     @Test
-    public void shouldPushMessage()
+    public void serverShouldBroadcast()
     {
         server.broadcastMessage();
 

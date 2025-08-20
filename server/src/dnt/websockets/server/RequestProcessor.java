@@ -4,16 +4,16 @@ import dnt.websockets.communications.*;
 
 public class RequestProcessor implements RequestVisitor
 {
-    private final Publisher publisher;
+    private final ExecutionLayer executionLayer;
 
-    public RequestProcessor(Publisher publisher)
+    public RequestProcessor(ExecutionLayer executionLayer)
     {
-        this.publisher = publisher;
+        this.executionLayer = executionLayer;
     }
 
     @Override
     public void visit(OptionsRequest optionsRequest)
     {
-        publisher.send(new OptionsResponse(optionsRequest.correlationId));
+        executionLayer.notifyResponseReceived(new OptionsResponse(optionsRequest.correlationId));
     }
 }

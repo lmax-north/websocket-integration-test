@@ -4,5 +4,5 @@ public interface Publisher
 {
     void send(AbstractMessage message);
 
-    long getNextCorrelationId();
+    void send(String source, AbstractMessage message);
 }
