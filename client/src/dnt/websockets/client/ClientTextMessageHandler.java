@@ -20,10 +20,10 @@ public class ClientTextMessageHandler implements Handler<String>
     private final ResponseVisitor processor;
     private final PushMessageVisitor pushMessageProcessor;
 
-    public ClientTextMessageHandler(ExecutionLayer publisher, PushMessageVisitor pushMessageProcessor)
+    public ClientTextMessageHandler(ExecutionLayer executionLayer, PushMessageVisitor pushMessageProcessor)
     {
         this.pushMessageProcessor = pushMessageProcessor;
-        this.processor = new ResponseProcessor(publisher);
+        this.processor = new ResponseProcessor(executionLayer);
     }
 
     @Override
