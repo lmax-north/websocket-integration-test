@@ -6,17 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import dnt.websockets.communications.*;
+import io.vertx.core.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerTextMessageHandler implements TextMessageHandler
+public class ServerTextMessageHandler implements Handler<String>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerTextMessageHandler.class);
-    private static final ObjectReader MESSAGE_READER = getServerMessageReader();
+
+    public static final ObjectMapper OBJECT_MAPPER = getServerObjectMapper();
+    private static final ObjectReader MESSAGE_READER = getServerMessageReader(OBJECT_MAPPER);
 
     private final RequestVisitor processor;
-    private final ExecutionLayer executionLayer;
 
+    private final ExecutionLayer executionLayer;
     public ServerTextMessageHandler(ExecutionLayer executionLayer)
     {
         this.processor = new RequestProcessor(executionLayer);
@@ -30,7 +33,7 @@ public class ServerTextMessageHandler implements TextMessageHandler
         try
         {
             AbstractRequest request = MESSAGE_READER.readValue(maybeJson);
-            handle(request);
+            request.visit(processor);
         }
         catch (JsonProcessingException e)
         {
@@ -38,21 +41,20 @@ public class ServerTextMessageHandler implements TextMessageHandler
         }
     }
 
-    @Override
-    public void handle(AbstractRequest request)
-    {
-        request.visit(processor);
-    }
-
     public void send(AbstractMessage message)
     {
         executionLayer.send(message);
     }
 
-    private static ObjectReader getServerMessageReader()
+    private static ObjectMapper getServerObjectMapper()
     {
         ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         objectMapper.registerSubtypes(new NamedType(OptionsRequest.class, OptionsRequest.class.getSimpleName()));
+        return objectMapper;
+    }
+
+    private static ObjectReader getServerMessageReader(ObjectMapper objectMapper)
+    {
         return objectMapper.readerFor(AbstractMessage.class);
     }
 }

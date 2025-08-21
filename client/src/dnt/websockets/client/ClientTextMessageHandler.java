@@ -6,14 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import dnt.websockets.communications.*;
+import io.vertx.core.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientTextMessageHandler implements TextMessageHandler
+public class ClientTextMessageHandler implements Handler<String>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientTextMessageHandler.class);
 
-    private static final ObjectReader MESSAGE_READER = getClientMessageReader();
+    public static final ObjectMapper OBJECT_MAPPER = getClientObjectMapper();
+    private static final ObjectReader MESSAGE_READER = getClientMessageReader(OBJECT_MAPPER);
 
     private final ResponseVisitor processor;
     private final PushMessageVisitor pushMessageProcessor;
@@ -45,23 +47,25 @@ public class ClientTextMessageHandler implements TextMessageHandler
         }
     }
 
-    @Override
-    public void handle(AbstractResponse response)
+    private void handle(AbstractResponse response)
     {
         response.visit(processor);
     }
 
-    @Override
-    public void handle(AbstractMessage message)
+    private void handle(AbstractMessage message)
     {
         message.visit(pushMessageProcessor);
     }
 
-    private static ObjectReader getClientMessageReader()
+    private static ObjectMapper getClientObjectMapper()
     {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         mapper.registerSubtypes(new NamedType(OptionsResponse.class, OptionsResponse.class.getSimpleName()));
         mapper.registerSubtypes(new NamedType(PushMessage.class, PushMessage.class.getSimpleName()));
+        return mapper;
+    }
+    private static ObjectReader getClientMessageReader(ObjectMapper mapper)
+    {
         return mapper.readerFor(AbstractMessage.class);
     }
 }

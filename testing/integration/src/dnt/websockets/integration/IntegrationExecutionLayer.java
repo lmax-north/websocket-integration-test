@@ -1,5 +1,6 @@
 package dnt.websockets.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dnt.websockets.client.ClientTextMessageHandler;
 import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.communications.*;
@@ -35,8 +36,15 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         return Future.succeededFuture()
                 .map(unused ->
                 {
-                    serverTextMessageHandler.handle(request);
-                    return Result.success((T) serverPushMessages.getLast());
+                    try
+                    {
+                        serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
+                        return Result.success((T) serverPushMessages.getLast());
+                    }
+                    catch (JsonProcessingException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .map(r -> r.mapError(String::valueOf));
     }
@@ -58,8 +66,15 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     @Override
     public void send(AbstractMessage message)
     {
-        clientTextMessageHandler.handle(message);
-        publisher.send(message);
+        try
+        {
+            clientTextMessageHandler.handle(ClientTextMessageHandler.OBJECT_MAPPER.writeValueAsString(message)); // Prove our serde works.
+//        publisher.send(message);
+        }
+        catch (JsonProcessingException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public <T extends AbstractMessage> T getLastMessage()
