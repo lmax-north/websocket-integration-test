@@ -14,15 +14,15 @@ public class IntegrationExecutionLayer implements ExecutionLayer
 
     private final ServerTextMessageHandler serverTextMessageHandler;
     private final ClientTextMessageHandler clientTextMessageHandler;
-    private final IntegrationPushMessageVisitor pushMessageVisitor;
+    private final PushMessageCollector collector;
 
-    public IntegrationExecutionLayer(IntegrationPushMessageVisitor pushMessageVisitor)
+    public IntegrationExecutionLayer(PushMessageCollector collector)
     {
-        this.publisher = new IntegrationPublisher(pushMessageVisitor);
-        this.pushMessageVisitor = pushMessageVisitor;
+        this.publisher = new IntegrationPublisher(collector);
+        this.collector = collector;
 
         this.serverTextMessageHandler = new ServerTextMessageHandler(this);
-        this.clientTextMessageHandler = new ClientTextMessageHandler(this, this.pushMessageVisitor);
+        this.clientTextMessageHandler = new ClientTextMessageHandler(this, this.collector);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
                     try
                     {
                         serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
-                        return Result.success((T) pushMessageVisitor.getLastMessage());
+                        return Result.success((T) collector.getLastMessage());
                     }
                     catch (JsonProcessingException e)
                     {

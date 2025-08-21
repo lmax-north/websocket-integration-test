@@ -7,7 +7,7 @@ import dnt.websockets.communications.PushMessageVisitor;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class IntegrationPushMessageVisitor implements PushMessageVisitor
+public class PushMessageCollector implements PushMessageVisitor
 {
     private final Queue<AbstractMessage> messages = new LinkedList<>();
 
