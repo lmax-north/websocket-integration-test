@@ -1,6 +1,7 @@
 package dnt.websockets.integration.dsl;
 
 import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.communications.OptionsResponse;
 import dnt.websockets.integration.ClientDriver;
 import dnt.websockets.integration.IntegrationExecutionLayer;
@@ -15,7 +16,7 @@ public class ClientDsl
     private final ClientDriver clientDriver;
     private final PushMessageCollector collector;
 
-    public ClientDsl(IntegrationExecutionLayer executionLayer, PushMessageCollector collector)
+    public ClientDsl(ExecutionLayer executionLayer, PushMessageCollector collector)
     {
         this.clientDriver = new ClientDriver(executionLayer);
         this.collector = collector;
