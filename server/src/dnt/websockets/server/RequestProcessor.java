@@ -2,6 +2,9 @@ package dnt.websockets.server;
 
 import dnt.websockets.communications.*;
 
+/**
+ * Class to handle requests
+ */
 public class RequestProcessor implements RequestVisitor
 {
     private final ExecutionLayer executionLayer;
@@ -14,6 +17,6 @@ public class RequestProcessor implements RequestVisitor
     @Override
     public void visit(OptionsRequest optionsRequest)
     {
-        executionLayer.notifyResponseReceived(new OptionsResponse(optionsRequest.correlationId));
+        executionLayer.respond(new OptionsResponse(optionsRequest.correlationId));
     }
 }

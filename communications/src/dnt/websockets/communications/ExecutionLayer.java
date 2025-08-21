@@ -5,11 +5,9 @@ import io.vertx.core.Future;
 
 public interface ExecutionLayer
 {
-    <T extends AbstractResponse> Future<Result<T, String>> send(AbstractRequest request);
+    <T extends AbstractResponse> Future<Result<T, String>> request(AbstractRequest request);
 
-    void broadcast(AbstractMessage message);
+    void respond(AbstractResponse response);
 
-    void unicast(String source, AbstractMessage message);
-
-    void notifyResponseReceived(AbstractResponse response);
+    void send(AbstractMessage message);
 }

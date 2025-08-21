@@ -5,6 +5,10 @@ import dnt.websockets.communications.PushMessage;
 
 public class ServerDriver
 {
+    // Vertx Test -> DSL -> Driver -> ServerVertx                    -> (MANY) Execution Layer
+    //                             -> SourceToTextMessageHandlers
+    //       Test -> DSL -> Driver -> Execution Layer ->
+
     private final ExecutionLayer executionLayer;
 
     public ServerDriver(ExecutionLayer executionLayer)
@@ -14,11 +18,11 @@ public class ServerDriver
 
     public void broadcastMessage()
     {
-        executionLayer.broadcast(new PushMessage());
+        executionLayer.send(new PushMessage());
     }
 
     public void unicastMessage(String source)
     {
-        executionLayer.unicast(source, new PushMessage());
+//        executionLayer.send(source, new PushMessage());
     }
 }

@@ -5,8 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/client/client.iml" filepath="$PROJECT_DIR$/client/client.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/communications/communications.iml" filepath="$PROJECT_DIR$/communications/communications.iml" />
+      <module fileurl="file://$PROJECT_DIR$/testing/integration/integration.iml" filepath="$PROJECT_DIR$/testing/integration/integration.iml" />
       <module fileurl="file://$PROJECT_DIR$/server/server.iml" filepath="$PROJECT_DIR$/server/server.iml" />
-      <module fileurl="file://$PROJECT_DIR$/testing/testing.iml" filepath="$PROJECT_DIR$/testing/testing.iml" />
       <module fileurl="file://$PROJECT_DIR$/websocket-integration-tests.iml" filepath="$PROJECT_DIR$/websocket-integration-tests.iml" />
       <module fileurl="file://$PROJECT_DIR$/websockets-vertx/websockets-vertx.iml" filepath="$PROJECT_DIR$/websockets-vertx/websockets-vertx.iml" />
     </modules>

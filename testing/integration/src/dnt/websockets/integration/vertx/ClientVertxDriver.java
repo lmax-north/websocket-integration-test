@@ -1,6 +1,6 @@
 package dnt.websockets.integration.vertx;
 
-import dnt.websockets.client.Client;
+import dnt.websockets.client.vertx.VertxClient;
 import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.OptionsResponse;
 import education.common.result.Result;
@@ -11,12 +11,12 @@ import java.util.Queue;
 
 public class ClientVertxDriver
 {
-    private final Client client;
-    private final Queue<AbstractMessage> broadcastMessages = new LinkedList<>();
+    private final VertxClient client;
+    private final Queue<AbstractMessage> serverPushMessages = new LinkedList<>();
 
     public ClientVertxDriver(String source)
     {
-        client = new Client(source, broadcastMessages::add);
+        client = new VertxClient(source, serverPushMessages::add);
         client.run()
                 .onFailure(t -> System.out.println("ERROR:" + t.getMessage()))
                 .toCompletionStage().toCompletableFuture().join();
@@ -30,10 +30,10 @@ public class ClientVertxDriver
 
     public AbstractMessage popLastMessage()
     {
-        if(broadcastMessages.isEmpty())
+        if(serverPushMessages.isEmpty())
         {
             return null;
         }
-        return broadcastMessages.remove();
+        return serverPushMessages.remove();
     }
 }

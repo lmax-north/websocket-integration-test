@@ -21,11 +21,11 @@ public class IntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
-    @Ignore("Ignored: Not implemented")
     public void serverShouldUnicastMessage()
     {
-        server.unicastMessage("Source1");
+        server.unicastMessage("source2");
 
-        client.verifyMessage("PushMessage");
+        client("source1").verifyMessage("NoMessage");
+        client("source2").verifyMessage("PushMessage");
     }
 }

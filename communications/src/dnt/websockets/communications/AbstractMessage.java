@@ -12,6 +12,8 @@ public abstract class AbstractMessage
         this.type = this.getClass().getSimpleName();
     }
 
+    public void visit(PushMessageVisitor visitor) {}
+
     @Override
     public String toString() {
         return "AbstractMessage{" +

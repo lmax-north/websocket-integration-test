@@ -1,15 +1,15 @@
 package dnt.websockets.integration.vertx;
 
 import dnt.websockets.communications.PushMessage;
-import dnt.websockets.server.Server;
+import dnt.websockets.server.vertx.ServerVertx;
 
 public class ServerVertxDriver
 {
-    private final Server server;
+    private final ServerVertx server;
 
     public ServerVertxDriver()
     {
-        server = new Server();
+        server = new ServerVertx();
         server.run()
                 .onFailure(t -> System.out.println("ERROR:" + t.getMessage()))
                 .toCompletionStage().toCompletableFuture().join();

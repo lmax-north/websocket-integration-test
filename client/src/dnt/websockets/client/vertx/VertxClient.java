@@ -1,0 +1,64 @@
+package dnt.websockets.client.vertx;
+
+import dnt.websockets.client.ClientTextMessageHandler;
+import dnt.websockets.client.Requests;
+import dnt.websockets.communications.*;
+import education.common.result.Result;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.WebSocket;
+import io.vertx.core.http.WebSocketConnectOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+
+import static dnt.websockets.vertx.VertxFactory.newVertx;
+
+public class VertxClient implements Requests
+{
+    private static final Logger LOGGER = LoggerFactory.getLogger(VertxClient.class);
+
+    private final URI uri;
+    private final PushMessageVisitor pushMessageVisitor;
+
+    private Vertx vertx;
+    private VertxClientExecutionLayer executorLayer;
+
+    public VertxClient(String source, PushMessageVisitor pushMessageVisitor)
+    {
+        this.uri = URI.create("/v1/websocket/").resolve(source);
+        this.pushMessageVisitor = pushMessageVisitor;
+    }
+
+    public Future<WebSocket> run()
+    {
+        vertx = newVertx();
+        HttpClient httpClient = vertx.createHttpClient();
+
+        WebSocketConnectOptions options = new WebSocketConnectOptions()
+                .setURI(uri.toString())
+                .setHost("localhost")
+                .setPort(7777);
+        options.setTimeout(3000);
+        return httpClient.webSocket(options)
+                .onSuccess(this::handle)
+                .onFailure(t -> LOGGER.error("Failed to start client.", t));
+    }
+
+    private void handle(WebSocket webSocket)
+    {
+        VertxPublisher messagePublisher = new VertxPublisher(webSocket);
+        executorLayer = new VertxClientExecutionLayer(vertx, messagePublisher);
+
+        ClientTextMessageHandler messageHandler = new ClientTextMessageHandler(executorLayer, pushMessageVisitor);
+        webSocket.textMessageHandler(messageHandler);
+    }
+
+    @Override
+    public Future<Result<OptionsResponse, String>> fetchOptions()
+    {
+        return executorLayer.request(new OptionsRequest());
+    }
+}

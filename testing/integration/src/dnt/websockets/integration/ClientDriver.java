@@ -19,7 +19,7 @@ public class ClientDriver implements Requests
     @Override
     public Future<Result<OptionsResponse, String>> fetchOptions()
     {
-        return executionLayer.send(new OptionsRequest());
+        return executionLayer.request(new OptionsRequest());
     }
 
     public AbstractMessage getLastMessage()

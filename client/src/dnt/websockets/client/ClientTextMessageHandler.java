@@ -1,28 +1,27 @@
 package dnt.websockets.client;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import dnt.websockets.communications.*;
-import io.vertx.core.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
-class ClientTextMessageHandler implements Handler<String>
+public class ClientTextMessageHandler implements TextMessageHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientTextMessageHandler.class);
 
-    private final ObjectReader messageReader;
-    private final ClientExecutionLayer executorLayer;
-    private final List<Listener> listeners;
+    private static final ObjectReader MESSAGE_READER = getClientMessageReader();
 
-    ClientTextMessageHandler(ObjectReader messageReader, ClientExecutionLayer executorLayer, Listener... listeners)
+    private final ResponseVisitor processor;
+    private final PushMessageVisitor pushMessageProcessor;
+
+    public ClientTextMessageHandler(ExecutionLayer publisher, PushMessageVisitor pushMessageProcessor)
     {
-        this.messageReader = messageReader;
-        this.executorLayer = executorLayer;
-        this.listeners = Arrays.asList(listeners);
+        this.pushMessageProcessor = pushMessageProcessor;
+        this.processor = new ResponseProcessor(publisher);
     }
 
     @Override
@@ -31,15 +30,14 @@ class ClientTextMessageHandler implements Handler<String>
         LOGGER.debug("Raw input {}", maybeJson);
         try
         {
-            AbstractMessage message = messageReader.readValue(maybeJson);
+            AbstractMessage message = MESSAGE_READER.readValue(maybeJson);
             if(message instanceof AbstractResponse)
             {
-                ResponseVisitor processor = new ResponseProcessor(executorLayer);
-                ((AbstractResponse)message).visit(processor);
+                handle((AbstractResponse)message);
                 return;
             }
 
-            listeners.forEach(listener -> listener.onMessage(message));
+            handle(message);
         }
         catch (JsonProcessingException e)
         {
@@ -47,8 +45,23 @@ class ClientTextMessageHandler implements Handler<String>
         }
     }
 
-    interface Listener
+    @Override
+    public void handle(AbstractResponse response)
     {
-        void onMessage(AbstractMessage message);
+        response.visit(processor);
+    }
+
+    @Override
+    public void handle(AbstractMessage message)
+    {
+        message.visit(pushMessageProcessor);
+    }
+
+    private static ObjectReader getClientMessageReader()
+    {
+        ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
+        mapper.registerSubtypes(new NamedType(OptionsResponse.class, OptionsResponse.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(PushMessage.class, PushMessage.class.getSimpleName()));
+        return mapper.readerFor(AbstractMessage.class);
     }
 }

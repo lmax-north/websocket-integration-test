@@ -1,10 +1,10 @@
-package dnt.websockets.server;
+package dnt.websockets.server.vertx;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import dnt.websockets.communications.*;
+import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.VertxPublisher;
+import dnt.websockets.server.ServerIntegrationExecutionLayer;
+import dnt.websockets.server.ServerTextMessageHandler;
+import dnt.websockets.server.Source;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -15,26 +15,18 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import static dnt.websockets.server.Source.getSource;
 import static dnt.websockets.vertx.VertxFactory.newVertx;
 
-public class Server
+public class ServerVertx
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerVertx.class);
     private static final short WEBSOCKET_CODE_FAILED_TO_CONNECT = 100;
 
-    private final ObjectMapper objectMapper;
-    private final ObjectReader messageReader;
-    private final Map<String, ServerTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
-
-    public Server()
-    {
-        objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
-        objectMapper.registerSubtypes(new NamedType(OptionsRequest.class, OptionsRequest.class.getSimpleName()));
-        messageReader = objectMapper.readerFor(AbstractRequest.class);
-    }
+    private final Map<Source, ServerTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
 
     public Future<HttpServer> run()
     {
@@ -59,17 +51,16 @@ public class Server
         }
         LOGGER.debug("Websocket connected {}", uri);
 
-        MessagePublisher messagePublisher = new MessagePublisher(serverWebSocket, objectMapper);
-        ExecutionLayer executionLayer = new ServerExecutionLayer(messagePublisher);
-
-        ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(messageReader, executionLayer);
+        VertxPublisher publisher = new VertxPublisher(serverWebSocket);
+        ServerIntegrationExecutionLayer executionLayer = new ServerIntegrationExecutionLayer(publisher);
+        ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executionLayer);
         serverWebSocket.textMessageHandler(textMessageHandler);
-        sourceToTextMessageHandlers.put(getSource(uri).name(), textMessageHandler);
+        sourceToTextMessageHandlers.put(getSource(uri), textMessageHandler);
     }
 
     public void broadcast(AbstractMessage message)
     {
-        Iterator<Map.Entry<String, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
+        Iterator<Map.Entry<Source, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
         while (iterator.hasNext())
         {
             ServerTextMessageHandler next;
@@ -88,6 +79,6 @@ public class Server
 
     public void unicast(String source, AbstractMessage message)
     {
-        sourceToTextMessageHandlers.get(source).send(message);
+        sourceToTextMessageHandlers.get(Source.valueOf(source.toUpperCase(Locale.ROOT))).send(message);
     }
 }

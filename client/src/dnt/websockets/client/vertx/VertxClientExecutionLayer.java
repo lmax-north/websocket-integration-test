@@ -1,4 +1,4 @@
-package dnt.websockets.client;
+package dnt.websockets.client.vertx;
 
 import dnt.websockets.communications.*;
 import dnt.websockets.vertx.VertxAsyncExecutor;
@@ -8,14 +8,14 @@ import io.vertx.core.Vertx;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ClientExecutionLayer implements ExecutionLayer
+public class VertxClientExecutionLayer implements ExecutionLayer
 {
-    private final MessagePublisher messagePublisher;
+    private final Publisher publisher;
     private final VertxAsyncExecutor<AbstractResponse> executor;
 
-    public ClientExecutionLayer(Vertx vertx, MessagePublisher messagePublisher)
+    public VertxClientExecutionLayer(Vertx vertx, Publisher publisher)
     {
-        this.messagePublisher = messagePublisher;
+        this.publisher = publisher;
         VertxAsyncExecutor.UniqueIdGenerator uniqueIdGenerator = new VertxAsyncExecutor.UniqueIdGenerator()
         {
             private final AtomicLong nextCorrelationId = new AtomicLong(1);
@@ -30,21 +30,9 @@ public class ClientExecutionLayer implements ExecutionLayer
     }
 
     @Override
-    public void broadcast(AbstractMessage pushMessage)
+    public <T extends AbstractResponse> Future<Result<T, String>> request(AbstractRequest request)
     {
-        throw new UnsupportedOperationException("Client not broadcasting to server");
-    }
-
-    @Override
-    public void unicast(String source, AbstractMessage pushMessage)
-    {
-        throw new UnsupportedOperationException("Client not unicasting to server");
-    }
-
-    @Override
-    public <T extends AbstractResponse> Future<Result<T, String>> send(AbstractRequest request)
-    {
-        return executor.execute(correlationId -> messagePublisher.send(request.attachCorrelationId(correlationId)))
+        return executor.execute(correlationId -> publisher.send(request.attachCorrelationId(correlationId)))
                 .map(Result::success)
                 .recover(throwable ->
                         Future.succeededFuture(Result.failure(throwable.getMessage())))
@@ -53,8 +41,14 @@ public class ClientExecutionLayer implements ExecutionLayer
     }
 
     @Override
-    public void notifyResponseReceived(AbstractResponse response)
+    public void respond(AbstractResponse response)
     {
         executor.onResponseReceived(response.correlationId, response);
+    }
+
+    @Override
+    public void send(AbstractMessage message)
+    {
+        throw new UnsupportedOperationException("Client doesn't send unsolicited messages to server.");
     }
 }

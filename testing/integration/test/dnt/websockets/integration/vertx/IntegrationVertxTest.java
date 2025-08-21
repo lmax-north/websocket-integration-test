@@ -24,7 +24,7 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
     @Test
     public void serverShouldUnicast()
     {
-        server.unicastMessage("SOURCE2");
+        server.unicastMessage("source2");
 
         client("source1").verifyNoMessage();
         client("source2").verifyMessage("PushMessage");

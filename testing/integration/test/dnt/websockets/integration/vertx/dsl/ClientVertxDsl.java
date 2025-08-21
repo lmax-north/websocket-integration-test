@@ -6,12 +6,10 @@ import dnt.websockets.integration.vertx.ClientVertxDriver;
 import education.common.result.Result;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
-import org.hamcrest.CoreMatchers;
 
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.PATH;
 
 public class ClientVertxDsl
 {
