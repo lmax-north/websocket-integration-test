@@ -19,9 +19,4 @@ public class ServerVertxDriver
     {
         server.broadcast(new PushMessage());
     }
-
-    public void unicast(String source)
-    {
-        server.unicast(source, new PushMessage());
-    }
 }

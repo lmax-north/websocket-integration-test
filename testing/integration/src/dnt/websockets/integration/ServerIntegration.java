@@ -1,40 +1,31 @@
 package dnt.websockets.integration;
 
-import dnt.websockets.communications.*;
+import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.server.ServerTextMessageHandler;
-import dnt.websockets.server.Source;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.List;
 
 public class ServerIntegration
 {
-    private final Map<Source, ServerTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
-
-    private final ExecutionLayer executionLayer;
+    private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
 
     public ServerIntegration(final ExecutionLayer executionLayer)
     {
-        this.executionLayer = executionLayer;
-    }
-
-    void wireUp(Source source)
-    {
-        ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executionLayer);
-        sourceToTextMessageHandlers.put(source, textMessageHandler);
+        this.textMessageHandlers.add(new ServerTextMessageHandler(executionLayer));
     }
 
     public void push(AbstractMessage message)
     {
-        Iterator<Map.Entry<Source, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
+        Iterator<ServerTextMessageHandler> iterator = textMessageHandlers.iterator();
         while (iterator.hasNext())
         {
             ServerTextMessageHandler next;
             try
             {
-                next = iterator.next().getValue();
+                next = iterator.next();
                 next.send(message);
             }
             catch (Exception e)
@@ -42,10 +33,5 @@ public class ServerIntegration
                 iterator.remove();
             }
         }
-    }
-
-    public void unicast(String source, AbstractMessage message)
-    {
-        sourceToTextMessageHandlers.get(Source.valueOf(source.toUpperCase())).send(message);
     }
 }

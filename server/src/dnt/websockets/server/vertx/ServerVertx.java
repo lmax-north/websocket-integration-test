@@ -4,7 +4,6 @@ import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.VertxPublisher;
 import dnt.websockets.server.ServerIntegrationExecutionLayer;
 import dnt.websockets.server.ServerTextMessageHandler;
-import dnt.websockets.server.Source;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -13,12 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.List;
 
-import static dnt.websockets.server.Source.getSource;
 import static dnt.websockets.vertx.VertxFactory.newVertx;
 
 public class ServerVertx
@@ -26,7 +23,7 @@ public class ServerVertx
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerVertx.class);
     private static final short WEBSOCKET_CODE_FAILED_TO_CONNECT = 100;
 
-    private final Map<Source, ServerTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
+    private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
 
     public Future<HttpServer> run()
     {
@@ -55,18 +52,18 @@ public class ServerVertx
         ServerIntegrationExecutionLayer executionLayer = new ServerIntegrationExecutionLayer(publisher);
         ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executionLayer);
         serverWebSocket.textMessageHandler(textMessageHandler);
-        sourceToTextMessageHandlers.put(getSource(uri), textMessageHandler);
+        textMessageHandlers.add(textMessageHandler);
     }
 
     public void broadcast(AbstractMessage message)
     {
-        Iterator<Map.Entry<Source, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
+        Iterator<ServerTextMessageHandler> iterator = textMessageHandlers.iterator();
         while (iterator.hasNext())
         {
             ServerTextMessageHandler next;
             try
             {
-                next = iterator.next().getValue();
+                next = iterator.next();
                 next.send(message);
             }
             catch (Exception e)
@@ -75,10 +72,5 @@ public class ServerVertx
                 LOGGER.error("Error writing message", e);
             }
         }
-    }
-
-    public void unicast(String source, AbstractMessage message)
-    {
-        sourceToTextMessageHandlers.get(Source.valueOf(source.toUpperCase(Locale.ROOT))).send(message);
     }
 }

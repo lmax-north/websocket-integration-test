@@ -18,9 +18,4 @@ public class ServerDsl
     {
         serverDriver.broadcastMessage(new PushMessage());
     }
-
-    public void unicastMessage(String source)
-    {
-        serverDriver.unicastMessage(source, new PushMessage());
-    }
 }

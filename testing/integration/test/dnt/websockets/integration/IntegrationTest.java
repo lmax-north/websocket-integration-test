@@ -19,13 +19,4 @@ public class IntegrationTest extends AbstractIntegrationTest
 
         client.verifyMessage("PushMessage");
     }
-
-    @Test
-    public void serverShouldUnicastMessage()
-    {
-        server.unicastMessage("source2");
-
-        client("source1").verifyMessage("NoMessage");
-        client("source2").verifyMessage("PushMessage");
-    }
 }
