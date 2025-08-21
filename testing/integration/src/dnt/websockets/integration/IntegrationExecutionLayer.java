@@ -4,27 +4,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dnt.websockets.client.ClientTextMessageHandler;
 import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.communications.*;
-import dnt.websockets.server.RequestProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
 import education.common.result.Result;
 import io.vertx.core.Future;
 
-import java.util.LinkedList;
-
 public class IntegrationExecutionLayer implements ExecutionLayer
 {
     private final IntegrationPublisher publisher;
-    private final LinkedList<AbstractMessage> serverPushMessages = new LinkedList<>();
 
     private final ServerTextMessageHandler serverTextMessageHandler;
     private final ClientTextMessageHandler clientTextMessageHandler;
+    private final IntegrationPushMessageVisitor pushMessageVisitor;
 
-    public IntegrationExecutionLayer()
+    public IntegrationExecutionLayer(IntegrationPushMessageVisitor pushMessageVisitor)
     {
-        this.publisher = new IntegrationPublisher(serverPushMessages::add);
+        this.publisher = new IntegrationPublisher(pushMessageVisitor);
+        this.pushMessageVisitor = pushMessageVisitor;
 
         this.serverTextMessageHandler = new ServerTextMessageHandler(this);
-        this.clientTextMessageHandler = new ClientTextMessageHandler(this, e -> serverPushMessages.add(e));
+        this.clientTextMessageHandler = new ClientTextMessageHandler(this, this.pushMessageVisitor);
     }
 
     @Override
@@ -36,7 +34,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
                     try
                     {
                         serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
-                        return Result.success((T) serverPushMessages.getLast());
+                        return Result.success((T) pushMessageVisitor.getLastMessage());
                     }
                     catch (JsonProcessingException e)
                     {
@@ -63,14 +61,5 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         {
             throw new RuntimeException(e);
         }
-    }
-
-    public <T extends AbstractMessage> T getLastMessage()
-    {
-        if(serverPushMessages.isEmpty())
-        {
-            return null;
-        }
-        return (T) serverPushMessages.remove();
     }
 }

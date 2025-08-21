@@ -2,8 +2,10 @@ package dnt.websockets.integration.dsl;
 
 import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.OptionsResponse;
+import dnt.websockets.communications.PushMessageVisitor;
 import dnt.websockets.integration.ClientDriver;
 import dnt.websockets.integration.IntegrationExecutionLayer;
+import dnt.websockets.integration.IntegrationPushMessageVisitor;
 import education.common.result.Result;
 import io.vertx.core.Future;
 
@@ -12,10 +14,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ClientDsl
 {
     private final ClientDriver clientDriver;
+    private final IntegrationPushMessageVisitor pushMessageVisitor;
 
-    public ClientDsl(IntegrationExecutionLayer executionLayer)
+    public ClientDsl(IntegrationExecutionLayer executionLayer, IntegrationPushMessageVisitor pushMessageVisitor)
     {
-        clientDriver = new ClientDriver(executionLayer);
+        this.clientDriver = new ClientDriver(executionLayer);
+        this.pushMessageVisitor = pushMessageVisitor;
     }
 
     public void fetchOptions()
@@ -32,7 +36,7 @@ public class ClientDsl
 
     public void verifyMessage(String className)
     {
-        AbstractMessage lastMessage = clientDriver.getLastMessage();
+        AbstractMessage lastMessage = pushMessageVisitor.getLastMessage();
         assertThat(lastMessage.getClass().getSimpleName()).isEqualTo(className);
     }
 }

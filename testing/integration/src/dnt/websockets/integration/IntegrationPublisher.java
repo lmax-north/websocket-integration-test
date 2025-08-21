@@ -2,23 +2,22 @@ package dnt.websockets.integration;
 
 import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.Publisher;
-import dnt.websockets.server.Source;
+import dnt.websockets.communications.PushMessageVisitor;
 
-import java.util.*;
 import java.util.function.Consumer;
 
 class IntegrationPublisher implements Publisher
 {
-    private final Consumer<AbstractMessage> consumerMessage;
+    private final PushMessageVisitor pushMessageProcessor;
 
-    IntegrationPublisher(Consumer<AbstractMessage> consumerMessage)
+    IntegrationPublisher(PushMessageVisitor pushMessageProcessor)
     {
-        this.consumerMessage = consumerMessage;
+        this.pushMessageProcessor = pushMessageProcessor;
     }
 
     @Override
     public void send(AbstractMessage message)
     {
-        consumerMessage.accept(message);
+        message.visit(pushMessageProcessor);
     }
 }

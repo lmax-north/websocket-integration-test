@@ -21,9 +21,4 @@ public class ClientDriver implements Requests
     {
         return executionLayer.request(new OptionsRequest());
     }
-
-    public AbstractMessage getLastMessage()
-    {
-        return executionLayer.getLastMessage();
-    }
 }
