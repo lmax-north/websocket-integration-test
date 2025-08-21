@@ -46,6 +46,6 @@ public class ServerIntegration
 
     public void unicast(String source, AbstractMessage message)
     {
-        sourceToTextMessageHandlers.get(Source.valueOf(source.toUpperCase(Locale.ROOT))).send(message);
+        sourceToTextMessageHandlers.get(Source.valueOf(source.toUpperCase())).send(message);
     }
 }
