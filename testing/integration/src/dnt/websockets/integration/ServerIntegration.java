@@ -13,16 +13,20 @@ public class ServerIntegration
 {
     private final Map<Source, ServerTextMessageHandler> sourceToTextMessageHandlers = new HashMap<>();
 
-    private void wireUp(Source source)
-    {
-//        Publisher publisher = new IntegrationPublisher(null);
-        ExecutionLayer executionLayer = new IntegrationExecutionLayer();
+    private final ExecutionLayer executionLayer;
 
+    public ServerIntegration(final ExecutionLayer executionLayer)
+    {
+        this.executionLayer = executionLayer;
+    }
+
+    void wireUp(Source source)
+    {
         ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executionLayer);
         sourceToTextMessageHandlers.put(source, textMessageHandler);
     }
 
-    public void broadcast(AbstractMessage message)
+    public void push(AbstractMessage message)
     {
         Iterator<Map.Entry<Source, ServerTextMessageHandler>> iterator = sourceToTextMessageHandlers.entrySet().iterator();
         while (iterator.hasNext())

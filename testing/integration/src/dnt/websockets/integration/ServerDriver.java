@@ -2,6 +2,7 @@ package dnt.websockets.integration;
 
 import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.communications.PushMessage;
+import dnt.websockets.server.Source;
 
 public class ServerDriver
 {
@@ -9,20 +10,22 @@ public class ServerDriver
     //                             -> SourceToTextMessageHandlers
     //       Test -> DSL -> Driver -> Execution Layer ->
 
-    private final ExecutionLayer executionLayer;
+    private final ServerIntegration server;
 
-    public ServerDriver(ExecutionLayer executionLayer)
+    public ServerDriver(final ExecutionLayer executionLayer)
     {
-        this.executionLayer = executionLayer;
+        server = new ServerIntegration(executionLayer);
+        server.wireUp(Source.SOURCE1);
+        server.wireUp(Source.SOURCE2);
     }
 
-    public void broadcastMessage()
+    public void broadcastMessage(final PushMessage message)
     {
-        executionLayer.send(new PushMessage());
+        server.push(message);
     }
 
-    public void unicastMessage(String source)
+    public void unicastMessage(String source, final PushMessage message)
     {
-//        executionLayer.send(source, new PushMessage());
+        server.unicast(source, message);
     }
 }

@@ -14,7 +14,6 @@ import java.util.LinkedList;
 public class IntegrationExecutionLayer implements ExecutionLayer
 {
     private final IntegrationPublisher publisher;
-    private final RequestProcessor requestProcessor;
     private final LinkedList<AbstractMessage> serverPushMessages = new LinkedList<>();
 
     private final ServerTextMessageHandler serverTextMessageHandler;
@@ -25,9 +24,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         this.publisher = new IntegrationPublisher(serverPushMessages::add);
 
         this.serverTextMessageHandler = new ServerTextMessageHandler(this);
-        this.clientTextMessageHandler = new ClientTextMessageHandler(this, serverPushMessages::add);
-
-        this.requestProcessor = new RequestProcessor(this);
+        this.clientTextMessageHandler = new ClientTextMessageHandler(this, e -> serverPushMessages.add(e));
     }
 
     @Override
@@ -55,21 +52,12 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         publisher.send(response);
     }
 
-    private void sendAndProcessImmediately(AbstractMessage message)
-    {
-        if (message instanceof OptionsRequest)
-        {
-            requestProcessor.visit((OptionsRequest) message);
-        }
-    }
-
     @Override
     public void send(AbstractMessage message)
     {
         try
         {
             clientTextMessageHandler.handle(ClientTextMessageHandler.OBJECT_MAPPER.writeValueAsString(message)); // Prove our serde works.
-//        publisher.send(message);
         }
         catch (JsonProcessingException e)
         {
