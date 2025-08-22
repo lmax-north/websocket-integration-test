@@ -17,6 +17,7 @@ public class RequestProcessor implements RequestVisitor
     @Override
     public void visit(OptionsRequest optionsRequest)
     {
-        executionLayer.respond(new OptionsResponse(optionsRequest.correlationId));
+        OptionsResponse response = new OptionsResponse(optionsRequest.correlationId);
+        executionLayer.respond(response);
     }
 }
