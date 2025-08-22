@@ -26,7 +26,6 @@ public class ClientDsl
     {
         Result<OptionsResponse, String> result = join(clientDriver.fetchOptions());
         assertThat(result.isSuccess()).isTrue();
-        System.out.println(result);
     }
 
     private static <R> R join(Future<R> future)

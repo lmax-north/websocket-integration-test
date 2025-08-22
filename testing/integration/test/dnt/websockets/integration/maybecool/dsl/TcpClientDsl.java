@@ -1,8 +1,8 @@
-package dnt.websockets.integration.vertx.dsl;
+package dnt.websockets.integration.maybecool.dsl;
 
 import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.OptionsResponse;
-import dnt.websockets.integration.vertx.VertxClientDriver;
+import dnt.websockets.integration.maybecool.TcpClientDriver;
 import education.common.result.Result;
 import io.vertx.core.Future;
 import org.awaitility.Awaitility;
@@ -11,11 +11,11 @@ import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ClientVertxDsl
+public class TcpClientDsl
 {
-    private final VertxClientDriver clientDriver;
+    private final TcpClientDriver clientDriver;
 
-    public ClientVertxDsl(VertxClientDriver clientDriver)
+    public TcpClientDsl(TcpClientDriver clientDriver)
     {
         this.clientDriver = clientDriver;
     }

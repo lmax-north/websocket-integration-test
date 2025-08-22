@@ -1,14 +1,14 @@
-package dnt.websockets.server;
+package dnt.websockets.server.vertx;
 
 import dnt.websockets.communications.*;
 import education.common.result.Result;
 import io.vertx.core.Future;
 
-public class ServerIntegrationExecutionLayer implements ExecutionLayer
+public class VertxServerExecutionLayer implements ExecutionLayer
 {
     private final Publisher messagePublisher;
 
-    public ServerIntegrationExecutionLayer(Publisher publisher)
+    public VertxServerExecutionLayer(Publisher publisher)
     {
         this.messagePublisher = publisher;
     }

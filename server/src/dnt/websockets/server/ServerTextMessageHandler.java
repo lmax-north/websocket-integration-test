@@ -20,6 +20,7 @@ public class ServerTextMessageHandler implements Handler<String>
     private final RequestVisitor processor;
 
     private final ExecutionLayer executionLayer;
+
     public ServerTextMessageHandler(ExecutionLayer executionLayer)
     {
         this.processor = new RequestProcessor(executionLayer);
@@ -43,6 +44,7 @@ public class ServerTextMessageHandler implements Handler<String>
 
     public void send(AbstractMessage message)
     {
+        LOGGER.debug("Sending {}", message);
         executionLayer.send(message);
     }
 

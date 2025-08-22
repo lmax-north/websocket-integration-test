@@ -1,26 +1,21 @@
-package dnt.websockets.integration.vertx;
+package dnt.websockets.integration.maybecool;
 
-import dnt.websockets.client.vertx.VertxClient;
+import dnt.websockets.client.maybecool.TcpClient;
 import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.OptionsResponse;
 import dnt.websockets.integration.PushMessageCollector;
 import education.common.result.Result;
 import io.vertx.core.Future;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-public class ClientVertxDriver
+public class TcpClientDriver
 {
-    private final VertxClient client;
+    private final TcpClient client;
     private final PushMessageCollector collector = new PushMessageCollector();
 
-    public ClientVertxDriver(String source)
+    public TcpClientDriver()
     {
-        client = new VertxClient(source, collector);
-        client.run()
-                .onFailure(t -> System.out.println("ERROR:" + t.getMessage()))
-                .toCompletionStage().toCompletableFuture().join();
+        client = new TcpClient(collector);
+        client.connect();
     }
 
     public Future<Result<OptionsResponse, String>> requestOptions()

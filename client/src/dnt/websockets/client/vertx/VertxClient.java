@@ -3,6 +3,7 @@ package dnt.websockets.client.vertx;
 import dnt.websockets.client.ClientTextMessageHandler;
 import dnt.websockets.client.Requests;
 import dnt.websockets.communications.*;
+import dnt.websockets.server.vertx.VertxPublisher;
 import education.common.result.Result;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;

@@ -1,8 +1,6 @@
 package dnt.websockets.server.vertx;
 
 import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.VertxPublisher;
-import dnt.websockets.server.ServerIntegrationExecutionLayer;
 import dnt.websockets.server.ServerTextMessageHandler;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -18,14 +16,14 @@ import java.util.List;
 
 import static dnt.websockets.vertx.VertxFactory.newVertx;
 
-public class ServerVertx
+public class VertxServer
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerVertx.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VertxServer.class);
     private static final short WEBSOCKET_CODE_FAILED_TO_CONNECT = 100;
 
     private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
 
-    public Future<HttpServer> run()
+    public Future<HttpServer> start()
     {
         Vertx vertx = newVertx();
         return vertx.createHttpServer()
@@ -49,7 +47,7 @@ public class ServerVertx
         LOGGER.debug("Websocket connected {}", uri);
 
         VertxPublisher publisher = new VertxPublisher(serverWebSocket);
-        ServerIntegrationExecutionLayer executionLayer = new ServerIntegrationExecutionLayer(publisher);
+        VertxServerExecutionLayer executionLayer = new VertxServerExecutionLayer(publisher);
         ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executionLayer);
         serverWebSocket.textMessageHandler(textMessageHandler);
         textMessageHandlers.add(textMessageHandler);
