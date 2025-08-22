@@ -66,9 +66,19 @@ public class TcpClient implements Requests
                     throw new RuntimeException(e);
                 }
             }).start();
+
+            waitForClientToStart();
         }
         catch (IOException e)
         {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void waitForClientToStart() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
