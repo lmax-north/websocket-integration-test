@@ -1,0 +1,23 @@
+package dnt.websockets.integration.dsl;
+
+import dnt.websockets.integration.IntegrationExecutionLayer;
+
+public class IntegrationDsl
+{
+    private final IntegrationExecutionLayer executionLayer;
+
+    public IntegrationDsl(IntegrationExecutionLayer executionLayer)
+    {
+        this.executionLayer = executionLayer;
+    }
+
+    public void failNextMessage(String failureMessage)
+    {
+        this.executionLayer.failNextMessage(failureMessage);
+    }
+
+    public void throwOnNextMessage()
+    {
+        this.executionLayer.throwOnNextMessage();
+    }
+}

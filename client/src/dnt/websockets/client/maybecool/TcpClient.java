@@ -71,10 +71,4 @@ public class TcpClient implements Requests, Runnable
             throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public Future<Result<AbstractResponse, String>> sendRequestExpectingNoResponse()
-    {
-        throw new UnsupportedOperationException();
-    }
 }

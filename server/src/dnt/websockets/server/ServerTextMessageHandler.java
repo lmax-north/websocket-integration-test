@@ -52,7 +52,6 @@ public class ServerTextMessageHandler implements Handler<String>
     {
         ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         objectMapper.registerSubtypes(new NamedType(OptionsRequest.class, OptionsRequest.class.getSimpleName()));
-        objectMapper.registerSubtypes(new NamedType(RequestExpectingNoResponse.class, RequestExpectingNoResponse.class.getSimpleName()));
         return objectMapper;
     }
 

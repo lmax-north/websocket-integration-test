@@ -8,6 +8,8 @@ import dnt.websockets.server.ServerTextMessageHandler;
 import education.common.result.Result;
 import io.vertx.core.Future;
 
+import java.util.Optional;
+
 public class IntegrationExecutionLayer implements ExecutionLayer
 {
     private final IntegrationPublisher publisher;
@@ -15,6 +17,9 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     private final ServerTextMessageHandler serverTextMessageHandler;
     private final ClientTextMessageHandler clientTextMessageHandler;
     private final PushMessageCollector collector;
+
+    private Optional<String> maybeFailNextMessage = Optional.empty();
+    private boolean throwOnNextMessage = false;
 
     public IntegrationExecutionLayer(PushMessageCollector collector)
     {
@@ -46,9 +51,16 @@ public class IntegrationExecutionLayer implements ExecutionLayer
 
     private <T extends AbstractResponse> Result<T, Object> intercept(AbstractRequest request, T lastMessage)
     {
-        if(request instanceof RequestExpectingNoResponse)
+        if(throwOnNextMessage)
         {
-            return Result.failure("Provoking failure.");
+            throwOnNextMessage = false;
+            throw new RuntimeException("Throw on next message");
+        }
+        if(maybeFailNextMessage.isPresent())
+        {
+            Result<T, Object> failure = Result.failure(maybeFailNextMessage.get());
+            maybeFailNextMessage = Optional.empty();
+            return failure;
         }
         return Result.success(lastMessage);
     }
@@ -70,5 +82,15 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public void failNextMessage(String failureMessage)
+    {
+        maybeFailNextMessage = Optional.of(failureMessage);
+    }
+
+    public void throwOnNextMessage()
+    {
+        throwOnNextMessage = true;
     }
 }

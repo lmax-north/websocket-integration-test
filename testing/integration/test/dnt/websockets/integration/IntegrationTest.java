@@ -21,8 +21,23 @@ public class IntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
-    public void verifyFailedToSend()
+    public void verifyFailNextMessage()
     {
-        client.verifyFailedToSend();
+        client.fetchOptions("expectSuccess: true");
+
+        integration.failNextMessage("Not available for this user.");
+
+        client.fetchOptions("expectSuccess: false");
+    }
+
+
+    @Test
+    public void verifyFutureFailNextMessage()
+    {
+        client.fetchOptions("expectException: false");
+
+        integration.throwOnNextMessage();
+
+        client.fetchOptions("expectException: true");
     }
 }

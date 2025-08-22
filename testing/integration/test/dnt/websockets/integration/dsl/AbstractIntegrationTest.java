@@ -7,8 +7,9 @@ import dnt.websockets.integration.PushMessageCollector;
 public abstract class AbstractIntegrationTest
 {
     private final PushMessageCollector collector = new PushMessageCollector();
-    private final ExecutionLayer executionLayer = new IntegrationExecutionLayer(collector);
+    private final IntegrationExecutionLayer executionLayer = new IntegrationExecutionLayer(collector);
 
     protected final ServerDsl server = new ServerDsl(executionLayer);
     protected final ClientDsl client = new ClientDsl(executionLayer, collector);
+    protected final IntegrationDsl integration = new IntegrationDsl(executionLayer);
 }

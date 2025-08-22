@@ -19,9 +19,4 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
 
         client.verifyMessage("PushMessage");
     }
-
-    @Test
-    public void verifyFailedToSend()
-    {
-        client.verifyFailedToSend();
-    }}
+}

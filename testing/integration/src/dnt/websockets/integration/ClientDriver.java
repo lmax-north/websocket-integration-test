@@ -19,10 +19,4 @@ public class ClientDriver implements Requests
     {
         return executionLayer.request(new OptionsRequest());
     }
-
-    @Override
-    public Future<Result<AbstractResponse, String>> sendRequestExpectingNoResponse()
-    {
-        return executionLayer.request(new RequestExpectingNoResponse());
-    }
 }

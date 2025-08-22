@@ -18,5 +18,6 @@
     <orderEntry type="library" scope="TEST" name="junit" level="project" />
     <orderEntry type="library" scope="TEST" name="assertj.core" level="project" />
     <orderEntry type="library" scope="TEST" name="awaitility" level="project" />
+    <orderEntry type="library" scope="TEST" name="lmax.simple.dsl" level="project" />
   </component>
 </module>
