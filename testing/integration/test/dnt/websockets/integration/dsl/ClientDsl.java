@@ -52,4 +52,10 @@ public class ClientDsl
         AbstractMessage lastMessage = collector.getLastMessage();
         assertThat(lastMessage.getClass().getSimpleName()).isEqualTo(className);
     }
+
+    public void verifyNoMoreMessages()
+    {
+        AbstractMessage lastMessage = collector.getLastMessage();
+        assertThat(lastMessage).isNull();
+    }
 }

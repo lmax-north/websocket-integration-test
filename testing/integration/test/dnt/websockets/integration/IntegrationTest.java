@@ -1,13 +1,12 @@
 package dnt.websockets.integration;
 
 import dnt.websockets.integration.dsl.AbstractIntegrationTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class IntegrationTest extends AbstractIntegrationTest
 {
     @Test
-    public void shouldRequestAndResponse()
+    public void clientShouldRequestAndResponse()
     {
         client.fetchOptions();
     }
@@ -15,13 +14,15 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void serverShouldBroadcastMessage()
     {
+        client.verifyNoMoreMessages();
+
         server.broadcastMessage();
 
         client.verifyMessage("PushMessage");
     }
 
     @Test
-    public void verifyFailNextMessage()
+    public void serverShouldFailNextMessage()
     {
         client.fetchOptions("expectSuccess: true");
 
@@ -32,7 +33,7 @@ public class IntegrationTest extends AbstractIntegrationTest
 
 
     @Test
-    public void verifyFutureFailNextMessage()
+    public void serverShouldFutureFailNextMessage()
     {
         client.fetchOptions("expectException: false");
 

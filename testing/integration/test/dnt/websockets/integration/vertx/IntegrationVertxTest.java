@@ -15,8 +15,11 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
     @Test
     public void serverShouldBroadcast()
     {
+        client.verifyNoMoreMessages();
+
         server.broadcastMessage();
 
         client.verifyMessage("PushMessage");
+        client.verifyNoMoreMessages();
     }
 }

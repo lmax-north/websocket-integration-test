@@ -46,7 +46,7 @@ public class ClientVertxDsl
                 });
     }
 
-    public void verifyNoMessage()
+    public void verifyNoMoreMessages()
     {
         Awaitility
                 .await()
