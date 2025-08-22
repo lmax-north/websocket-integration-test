@@ -29,6 +29,11 @@ public class RequestProcessor implements RequestVisitor
     @Override
     public void visit(SetPropertyRequest request)
     {
+        if("do_not_send_response".equals(request.key) && "true".equals(request.value))
+        {
+            return;
+        }
+
         properties.put(request.key, request.value);
         System.out.println(properties);
         SetPropertyResponse response = new SetPropertyResponse(request.correlationId);

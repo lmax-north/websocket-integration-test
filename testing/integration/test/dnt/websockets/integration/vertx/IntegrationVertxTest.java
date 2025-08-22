@@ -22,4 +22,10 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
         client.verifyMessage("PushMessage");
         client.verifyNoMoreMessages();
     }
+
+    @Test
+    public void shouldFailIfNoResponse()
+    {
+        client.setProperty("key: do_not_send_response", "value: true", "expectSuccess: false");
+    }
 }

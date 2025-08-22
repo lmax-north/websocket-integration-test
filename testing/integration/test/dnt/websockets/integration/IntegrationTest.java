@@ -23,17 +23,6 @@ public class IntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
-    public void serverShouldFailNextMessage()
-    {
-        client.getProperty("key: name", "expectSuccess: true");
-
-        integration.failNextMessage("Not available for this user.");
-
-        client.getProperty("key: name", "expectSuccess: false");
-    }
-
-
-    @Test
     public void serverShouldFutureFailNextMessage()
     {
         client.getProperty("key: name", "expectException: false");
@@ -42,4 +31,21 @@ public class IntegrationTest extends AbstractIntegrationTest
 
         client.getProperty("key: name", "expectException: true");
     }
+
+    @Test
+    public void shouldFailIfNoResponse()
+    {
+        client.setProperty("key: do_not_send_response", "value: true", "expectSuccess: false");
+    }
+
+    @Test
+    public void serverShouldFailNextMessage()
+    {
+        client.setProperty("key: name", "value: sam", "expectSuccess: true");
+
+        integration.failNextMessage("Not available for this user.");
+
+        client.setProperty("key: name", "value: sam", "expectSuccess: false");
+    }
+
 }
