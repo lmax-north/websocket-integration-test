@@ -1,15 +1,13 @@
 package dnt.websockets.integration.dsl;
 
-import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.ExecutionLayer;
-import dnt.websockets.communications.OptionsResponse;
+import dnt.websockets.communications.*;
 import dnt.websockets.integration.ClientDriver;
-import dnt.websockets.integration.IntegrationExecutionLayer;
 import dnt.websockets.integration.PushMessageCollector;
 import education.common.result.Result;
 import io.vertx.core.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ClientDsl
 {
@@ -25,7 +23,7 @@ public class ClientDsl
     public void fetchOptions()
     {
         Result<OptionsResponse, String> result = join(clientDriver.fetchOptions());
-        assertThat(result.isSuccess()).isTrue();
+        assertTrue(result.isSuccess());
     }
 
     private static <R> R join(Future<R> future)
@@ -37,5 +35,12 @@ public class ClientDsl
     {
         AbstractMessage lastMessage = collector.getLastMessage();
         assertThat(lastMessage.getClass().getSimpleName()).isEqualTo(className);
+    }
+
+    public void verifyFailedToSend()
+    {
+        Result<AbstractResponse, String> result = join(clientDriver.sendRequestExpectingNoResponse());
+        assertTrue(result.hasFailed());
+        assertThat(result.error()).isEqualTo("Provoking failure.");
     }
 }

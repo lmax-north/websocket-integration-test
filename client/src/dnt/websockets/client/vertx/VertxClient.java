@@ -62,4 +62,10 @@ public class VertxClient implements Requests
     {
         return executorLayer.request(new OptionsRequest());
     }
+
+    @Override
+    public Future<Result<AbstractResponse, String>> sendRequestExpectingNoResponse()
+    {
+        return executorLayer.request(new RequestExpectingNoResponse());
+    }
 }

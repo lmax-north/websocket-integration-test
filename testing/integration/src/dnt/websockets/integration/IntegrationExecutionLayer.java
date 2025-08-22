@@ -34,7 +34,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
                     try
                     {
                         serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
-                        return Result.success((T) collector.getLastMessage());
+                        return intercept(request, (T) collector.getLastMessage());
                     }
                     catch (JsonProcessingException e)
                     {
@@ -42,6 +42,15 @@ public class IntegrationExecutionLayer implements ExecutionLayer
                     }
                 })
                 .map(r -> r.mapError(String::valueOf));
+    }
+
+    private <T extends AbstractResponse> Result<T, Object> intercept(AbstractRequest request, T lastMessage)
+    {
+        if(request instanceof RequestExpectingNoResponse)
+        {
+            return Result.failure("Provoking failure.");
+        }
+        return Result.success(lastMessage);
     }
 
     @Override

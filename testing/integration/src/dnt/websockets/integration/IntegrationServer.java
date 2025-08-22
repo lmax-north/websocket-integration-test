@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ServerIntegration
+public class IntegrationServer
 {
     private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
 
-    public ServerIntegration(final ExecutionLayer executionLayer)
+    public IntegrationServer(final ExecutionLayer executionLayer)
     {
         this.textMessageHandlers.add(new ServerTextMessageHandler(executionLayer));
     }

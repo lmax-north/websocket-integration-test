@@ -1,6 +1,7 @@
 package dnt.websockets.integration.vertx.dsl;
 
 import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.AbstractResponse;
 import dnt.websockets.communications.OptionsResponse;
 import dnt.websockets.integration.vertx.VertxClientDriver;
 import education.common.result.Result;
@@ -10,6 +11,7 @@ import org.awaitility.Awaitility;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ClientVertxDsl
 {
@@ -57,5 +59,12 @@ public class ClientVertxDsl
                     AbstractMessage abstractMessage = clientDriver.popLastMessage();
                     return abstractMessage == null;
                 });
+    }
+
+    public void verifyFailedToSend()
+    {
+        Result<AbstractResponse, String> result = join(clientDriver.sendRequestExpectingNoResponse());
+        System.out.println(result);
+        assertTrue(result.hasFailed());
     }
 }

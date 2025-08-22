@@ -5,11 +5,11 @@ import dnt.websockets.communications.PushMessage;
 
 public class ServerDriver
 {
-    private final ServerIntegration server;
+    private final IntegrationServer server;
 
     public ServerDriver(final ExecutionLayer executionLayer)
     {
-        server = new ServerIntegration(executionLayer);
+        server = new IntegrationServer(executionLayer);
     }
 
     public void broadcastMessage(final PushMessage message)

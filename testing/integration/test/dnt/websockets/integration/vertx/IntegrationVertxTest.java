@@ -1,7 +1,6 @@
 package dnt.websockets.integration.vertx;
 
 import dnt.websockets.integration.vertx.dsl.AbstractIntegrationVertxTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class IntegrationVertxTest extends AbstractIntegrationVertxTest
@@ -20,4 +19,9 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
 
         client.verifyMessage("PushMessage");
     }
-}
+
+    @Test
+    public void verifyFailedToSend()
+    {
+        client.verifyFailedToSend();
+    }}
