@@ -3,14 +3,25 @@ package dnt.websockets.integration.maybecool;
 import dnt.websockets.communications.PushMessage;
 import dnt.websockets.server.maybecool.TcpServer;
 
-public class UdpServerDriver
+public class TcpServerDriver
 {
     private final TcpServer server;
 
-    public UdpServerDriver()
+    public TcpServerDriver()
     {
         server = new TcpServer();
-        server.start();
+        new Thread(server)
+                .start();
+
+        waitForServerToStart();
+    }
+
+    private static void waitForServerToStart() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void broadcastMessage()

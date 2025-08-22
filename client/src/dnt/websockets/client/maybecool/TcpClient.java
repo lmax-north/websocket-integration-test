@@ -18,7 +18,7 @@ import java.net.Socket;
 
 import static dnt.websockets.vertx.VertxFactory.newVertx;
 
-public class TcpClient implements Requests
+public class TcpClient implements Requests, Runnable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(TcpClient.class);
     private static final Vertx VERTX = newVertx();
@@ -38,7 +38,8 @@ public class TcpClient implements Requests
         return executorLayer.request(new OptionsRequest());
     }
 
-    public void connect()
+    @Override
+    public void run()
     {
         try
         {
@@ -48,37 +49,25 @@ public class TcpClient implements Requests
             final Publisher publisher = new TcpPublisher(socket);
             executorLayer = new VertxClientExecutionLayer(VERTX, publisher); // Use vertx futures for now.
 
-            new Thread(() ->
+            ClientTextMessageHandler messageHandler = new ClientTextMessageHandler(executorLayer, pushMessageVisitor);
+            try(final BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())))
             {
-                ClientTextMessageHandler messageHandler = new ClientTextMessageHandler(executorLayer, pushMessageVisitor);
-                try(final BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())))
+                while(true)
                 {
-                    while(true)
-                    {
-                        String maybeJson = in.readLine();
-                        if(maybeJson == null) break;
+                    String maybeJson = in.readLine();
+                    System.out.println(maybeJson);
+                    if(maybeJson == null) break;
 
-                        messageHandler.handle(maybeJson);
-                    }
+                    messageHandler.handle(maybeJson);
                 }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }).start();
-
-            waitForClientToStart();
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void waitForClientToStart() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

@@ -27,7 +27,7 @@ public class TcpPublisher implements Publisher
     @Override
     public void send(AbstractMessage message)
     {
-        LOGGER.error("Sending {}", message);
+        LOGGER.debug("Sending {}", message);
         try
         {
             writer.println(objectMapper.writeValueAsString(message));

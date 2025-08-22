@@ -15,7 +15,18 @@ public class TcpClientDriver
     public TcpClientDriver()
     {
         client = new TcpClient(collector);
-        client.connect();
+        new Thread(client)
+                .start();
+
+        waitForClientToConnect();
+    }
+
+    private static void waitForClientToConnect() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Future<Result<OptionsResponse, String>> requestOptions()

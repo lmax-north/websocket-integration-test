@@ -1,6 +1,8 @@
 package dnt.websockets.server.vertx;
 
 import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.ExecutionLayer;
+import dnt.websockets.communications.Publisher;
 import dnt.websockets.server.ServerTextMessageHandler;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -46,8 +48,8 @@ public class VertxServer
         }
         LOGGER.debug("Websocket connected {}", uri);
 
-        VertxPublisher publisher = new VertxPublisher(serverWebSocket);
-        VertxServerExecutionLayer executionLayer = new VertxServerExecutionLayer(publisher);
+        Publisher publisher = new VertxPublisher(serverWebSocket);
+        ExecutionLayer executionLayer = new VertxServerExecutionLayer(publisher);
         ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executionLayer);
         serverWebSocket.textMessageHandler(textMessageHandler);
         textMessageHandlers.add(textMessageHandler);
