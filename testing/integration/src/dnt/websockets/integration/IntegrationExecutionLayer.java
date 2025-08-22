@@ -7,11 +7,15 @@ import dnt.websockets.communications.*;
 import dnt.websockets.server.ServerTextMessageHandler;
 import education.common.result.Result;
 import io.vertx.core.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class IntegrationExecutionLayer implements ExecutionLayer
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationExecutionLayer.class);
+
     private final IntegrationPublisher publisher;
 
     private final ServerTextMessageHandler serverTextMessageHandler;
@@ -39,7 +43,13 @@ public class IntegrationExecutionLayer implements ExecutionLayer
                     try
                     {
                         serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
-                        return intercept(request, (T) collector.getLastMessage());
+                        T lastMessage = collector.getLastMessage();
+                        if(lastMessage == null)
+                        {
+                            LOGGER.error("No response received.");
+                            return Result.<T, Object>failure("No response received");
+                        }
+                        return intercept(request, lastMessage);
                     }
                     catch (JsonProcessingException e)
                     {

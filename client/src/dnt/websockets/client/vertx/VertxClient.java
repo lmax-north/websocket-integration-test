@@ -58,8 +58,14 @@ public class VertxClient implements Requests
     }
 
     @Override
-    public Future<Result<OptionsResponse, String>> fetchOptions()
+    public Future<Result<GetPropertyResponse, String>> getProperty(String key)
     {
-        return executorLayer.request(new OptionsRequest());
+        return executorLayer.request(new GetPropertyRequest(key));
+    }
+
+    @Override
+    public Future<Result<SetPropertyResponse, String>> setProperty(String key, String value)
+    {
+        return executorLayer.request(new SetPropertyRequest(key, value));
     }
 }

@@ -12,7 +12,10 @@ public abstract class AbstractMessage
         this.type = this.getClass().getSimpleName();
     }
 
-    public void visit(PushMessageVisitor visitor) {}
+    public void visit(PushMessageVisitor visitor)
+    {
+        visitor.visit(this);
+    }
 
     @Override
     public String toString() {

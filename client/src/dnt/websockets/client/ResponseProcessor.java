@@ -13,8 +13,14 @@ public class ResponseProcessor implements ResponseVisitor
     }
 
     @Override
-    public void visit(OptionsResponse optionsResponse)
+    public void visit(GetPropertyResponse response)
     {
-        executionLayer.respond(optionsResponse);
+        executionLayer.respond(response);
+    }
+
+    @Override
+    public void visit(SetPropertyResponse response)
+    {
+        executionLayer.respond(response);
     }
 }

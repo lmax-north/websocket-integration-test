@@ -8,8 +8,8 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
     @Test
     public void shouldSendAndReceive()
     {
-        client.fetchOptions();
-        client.fetchOptions();
+        client.setProperty("key: name", "value: sam");
+        client.getProperty("key: name", "expectedValue: sam");
     }
 
     @Test

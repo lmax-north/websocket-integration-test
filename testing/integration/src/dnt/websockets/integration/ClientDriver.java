@@ -15,8 +15,14 @@ public class ClientDriver implements Requests
     }
 
     @Override
-    public Future<Result<OptionsResponse, String>> fetchOptions()
+    public Future<Result<GetPropertyResponse, String>> getProperty(String key)
     {
-        return executionLayer.request(new OptionsRequest());
+        return executionLayer.request(new GetPropertyRequest(key));
+    }
+
+    @Override
+    public Future<Result<SetPropertyResponse, String>> setProperty(String key, String value)
+    {
+        return executionLayer.request(new SetPropertyRequest(key, value));
     }
 }

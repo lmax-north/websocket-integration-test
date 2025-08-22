@@ -4,20 +4,18 @@ import dnt.websockets.communications.AbstractMessage;
 import dnt.websockets.communications.Publisher;
 import dnt.websockets.communications.PushMessageVisitor;
 
-import java.util.function.Consumer;
-
 class IntegrationPublisher implements Publisher
 {
-    private final PushMessageVisitor pushMessageProcessor;
+    private final PushMessageVisitor pushMessageVisitor;
 
-    IntegrationPublisher(PushMessageVisitor pushMessageProcessor)
+    IntegrationPublisher(PushMessageVisitor pushMessageVisitor)
     {
-        this.pushMessageProcessor = pushMessageProcessor;
+        this.pushMessageVisitor = pushMessageVisitor;
     }
 
     @Override
     public void send(AbstractMessage message)
     {
-        message.visit(pushMessageProcessor);
+        message.visit(pushMessageVisitor);
     }
 }

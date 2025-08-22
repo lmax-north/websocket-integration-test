@@ -8,7 +8,8 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void clientShouldRequestAndResponse()
     {
-        client.fetchOptions();
+        client.setProperty("key: name", "value: sam");
+        client.getProperty("key: name", "expectedValue: sam");
     }
 
     @Test
@@ -24,21 +25,21 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void serverShouldFailNextMessage()
     {
-        client.fetchOptions("expectSuccess: true");
+        client.getProperty("key: name", "expectSuccess: true");
 
         integration.failNextMessage("Not available for this user.");
 
-        client.fetchOptions("expectSuccess: false");
+        client.getProperty("key: name", "expectSuccess: false");
     }
 
 
     @Test
     public void serverShouldFutureFailNextMessage()
     {
-        client.fetchOptions("expectException: false");
+        client.getProperty("key: name", "expectException: false");
 
         integration.throwOnNextMessage();
 
-        client.fetchOptions("expectException: true");
+        client.getProperty("key: name", "expectException: true");
     }
 }

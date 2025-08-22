@@ -17,17 +17,17 @@ public class RequestsTest
     public RequestsTest()
     {
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
-        mapper.registerSubtypes(new NamedType(OptionsRequest.class, OptionsRequest.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(GetPropertyRequest.class, GetPropertyRequest.class.getSimpleName()));
         messageReader = mapper.readerFor(AbstractRequest.class);
     }
 
     @Test
     public void testSerde() throws JsonProcessingException
     {
-        OptionsRequest original = new OptionsRequest().attachCorrelationId(1);
+        GetPropertyRequest original = new GetPropertyRequest().attachCorrelationId(1);
         final String json = mapper.writeValueAsString(original);
 
         AbstractRequest decoded = messageReader.readValue(json);
-        assertThat(decoded).isInstanceOf(OptionsRequest.class);
+        assertThat(decoded).isInstanceOf(GetPropertyRequest.class);
     }
 }

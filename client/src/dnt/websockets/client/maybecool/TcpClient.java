@@ -33,9 +33,15 @@ public class TcpClient implements Requests, Runnable
     }
 
     @Override
-    public Future<Result<OptionsResponse, String>> fetchOptions()
+    public Future<Result<GetPropertyResponse, String>> getProperty(String key)
     {
-        return executorLayer.request(new OptionsRequest());
+        return executorLayer.request(new GetPropertyRequest(key));
+    }
+
+    @Override
+    public Future<Result<SetPropertyResponse, String>> setProperty(String key, String value)
+    {
+        return executorLayer.request(new SetPropertyRequest(key, value));
     }
 
     @Override
@@ -50,20 +56,16 @@ public class TcpClient implements Requests, Runnable
             executorLayer = new VertxClientExecutionLayer(VERTX, publisher); // Use vertx futures for now.
 
             ClientTextMessageHandler messageHandler = new ClientTextMessageHandler(executorLayer, pushMessageVisitor);
-            try(final BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())))
+            try(final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream())))
             {
                 while(true)
                 {
-                    String maybeJson = in.readLine();
+                    String maybeJson = reader.readLine();
                     System.out.println(maybeJson);
                     if(maybeJson == null) break;
 
                     messageHandler.handle(maybeJson);
                 }
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
             }
         }
         catch (IOException e)

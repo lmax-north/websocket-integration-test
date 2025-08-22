@@ -60,7 +60,8 @@ public class ClientTextMessageHandler implements Handler<String>
     private static ObjectMapper getClientObjectMapper()
     {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
-        mapper.registerSubtypes(new NamedType(OptionsResponse.class, OptionsResponse.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(GetPropertyResponse.class, GetPropertyResponse.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(SetPropertyResponse.class, SetPropertyResponse.class.getSimpleName()));
         mapper.registerSubtypes(new NamedType(PushMessage.class, PushMessage.class.getSimpleName()));
         return mapper;
     }

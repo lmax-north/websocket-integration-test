@@ -2,6 +2,7 @@ package dnt.websockets.integration.dsl;
 
 import com.lmax.simpledsl.api.DslParams;
 import com.lmax.simpledsl.api.OptionalArg;
+import com.lmax.simpledsl.api.RequiredArg;
 import dnt.websockets.communications.*;
 import dnt.websockets.integration.ClientDriver;
 import dnt.websockets.integration.PushMessageCollector;
@@ -23,22 +24,42 @@ public class ClientDsl
         this.collector = collector;
     }
 
-    public void fetchOptions(String... args)
+    public void getProperty(String... args)
     {
-        final DslParams dslParams = DslParams.create(args,
+        final DslParams params = DslParams.create(args,
+                new RequiredArg("key"),
+                new OptionalArg("expectedValue"),
                 new OptionalArg("expectSuccess").setDefault("true"),
                 new OptionalArg("expectException").setDefault("false"));
-        boolean expectSuccess = dslParams.valueAsBoolean("expectSuccess");
+        boolean expectSuccess = params.valueAsBoolean("expectSuccess");
 
-        if(dslParams.valueAsBoolean("expectException"))
+        String key = params.value("key");
+        if(params.valueAsBoolean("expectException"))
         {
             Assertions.assertThatException()
-                    .isThrownBy(() -> join(clientDriver.fetchOptions()))
+                    .isThrownBy(() -> join(clientDriver.getProperty(key)))
                     .withCauseInstanceOf(RuntimeException.class);
             return;
         }
 
-        Result<OptionsResponse, String> result = join(clientDriver.fetchOptions());
+        Result<GetPropertyResponse, String> result = join(clientDriver.getProperty(key));
+        assertThat(result.isSuccess()).isEqualTo(expectSuccess);
+        params.valueAsOptional("expectedValue").ifPresent(expectedValue ->
+                assertThat(result.success().value).isEqualTo(expectedValue));
+    }
+
+    public void setProperty(String... args)
+    {
+        final DslParams params = DslParams.create(args,
+                new RequiredArg("key"),
+                new RequiredArg("value"),
+                new OptionalArg("expectSuccess").setDefault("true"));
+        boolean expectSuccess = params.valueAsBoolean("expectSuccess");
+
+        String key = params.value("key");
+        String value = params.value("value");
+
+        Result<SetPropertyResponse, String> result = join(clientDriver.setProperty(key, value));
         assertThat(result.isSuccess()).isEqualTo(expectSuccess);
     }
 

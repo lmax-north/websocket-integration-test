@@ -2,7 +2,8 @@ package dnt.websockets.integration.vertx;
 
 import dnt.websockets.client.vertx.VertxClient;
 import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.OptionsResponse;
+import dnt.websockets.communications.GetPropertyResponse;
+import dnt.websockets.communications.SetPropertyResponse;
 import dnt.websockets.integration.PushMessageCollector;
 import education.common.result.Result;
 import io.vertx.core.Future;
@@ -20,9 +21,15 @@ public class VertxClientDriver
                 .toCompletionStage().toCompletableFuture().join();
     }
 
-    public Future<Result<OptionsResponse, String>> requestOptions()
+    public Future<Result<SetPropertyResponse, String>> setProperty(String key, String value)
     {
-        return client.fetchOptions()
+        return client.setProperty(key, value)
+                .onFailure(t -> System.out.println("ERROR:" + t.getMessage()));
+    }
+
+    public Future<Result<GetPropertyResponse, String>> getProperty(String key)
+    {
+        return client.getProperty(key)
                 .onFailure(t -> System.out.println("ERROR:" + t.getMessage()));
     }
 

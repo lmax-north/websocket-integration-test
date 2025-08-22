@@ -17,6 +17,12 @@ public class PushMessageCollector implements PushMessageVisitor
         messages.add(pushMessage);
     }
 
+    @Override
+    public void visit(AbstractMessage message)
+    {
+        messages.add(message);
+    }
+
     public <T extends AbstractMessage> T getLastMessage()
     {
         if(messages.isEmpty())

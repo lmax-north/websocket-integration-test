@@ -8,8 +8,8 @@ public class IntegrationTcpTest extends AbstractIntegrationTcpTest
     @Test
     public void shouldSendAndReceive()
     {
-        client.fetchOptions();
-        client.fetchOptions();
+        client.setProperty("key: name", "value: sam");
+        client.getProperty("key: name", "expectedValue: sam");
     }
 
     @Test

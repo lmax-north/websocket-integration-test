@@ -1,7 +1,11 @@
 package dnt.websockets.integration.vertx.dsl;
 
+import com.lmax.simpledsl.api.DslParams;
+import com.lmax.simpledsl.api.OptionalArg;
+import com.lmax.simpledsl.api.RequiredArg;
 import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.OptionsResponse;
+import dnt.websockets.communications.GetPropertyResponse;
+import dnt.websockets.communications.SetPropertyResponse;
 import dnt.websockets.integration.vertx.VertxClientDriver;
 import education.common.result.Result;
 import io.vertx.core.Future;
@@ -20,11 +24,34 @@ public class ClientVertxDsl
         this.clientDriver = clientDriver;
     }
 
-    public void fetchOptions()
+    public void setProperty(String... args)
     {
-        Result<OptionsResponse, String> result = join(clientDriver.requestOptions());
-        System.out.println(result);
-        assertThat(result.isSuccess()).isTrue();
+        final DslParams params = DslParams.create(args,
+                new RequiredArg("key"),
+                new RequiredArg("value"),
+                new OptionalArg("expectSuccess").setDefault("true"));
+        boolean expectSuccess = params.valueAsBoolean("expectSuccess");
+
+        String key = params.value("key");
+        String value = params.value("value");
+
+        Result<SetPropertyResponse, String> result = join(clientDriver.setProperty(key, value));
+        assertThat(result.isSuccess()).isEqualTo(expectSuccess);
+    }
+
+    public void getProperty(String... args)
+    {
+        final DslParams params = DslParams.create(args,
+                new RequiredArg("key"),
+                new OptionalArg("expectedValue"),
+                new OptionalArg("expectSuccess").setDefault("true"));
+        boolean expectSuccess = params.valueAsBoolean("expectSuccess");
+
+        String key = params.value("key");
+        Result<GetPropertyResponse, String> result = join(clientDriver.getProperty(key));
+        assertThat(result.isSuccess()).isEqualTo(expectSuccess);
+        params.valueAsOptional("expectedValue").ifPresent(expectedValue ->
+                assertThat(result.success().value).isEqualTo(expectedValue));
     }
 
     private <R> R join(Future<R> future)
