@@ -21,9 +21,9 @@ public class ServerTextMessageHandler implements Handler<String>
 
     private final ExecutionLayer executionLayer;
 
-    public ServerTextMessageHandler(ExecutionLayer executionLayer)
+    public ServerTextMessageHandler(ExecutionLayer executionLayer, RequestVisitor requestProcessor)
     {
-        this.processor = new RequestProcessor(executionLayer);
+        this.processor = requestProcessor;
         this.executionLayer = executionLayer;
     }
 
@@ -34,7 +34,7 @@ public class ServerTextMessageHandler implements Handler<String>
         try
         {
             AbstractRequest request = MESSAGE_READER.readValue(maybeJson);
-            request.visit(processor);
+            request.visit(executionLayer, processor);
         }
         catch (JsonProcessingException e)
         {

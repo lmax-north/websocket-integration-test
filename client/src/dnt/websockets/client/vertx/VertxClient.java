@@ -50,8 +50,8 @@ public class VertxClient implements Requests
 
     private void handle(WebSocket webSocket)
     {
-        VertxPublisher messagePublisher = new VertxPublisher(webSocket);
-        executorLayer = new VertxClientExecutionLayer(vertx, messagePublisher);
+        Publisher publisher = new VertxPublisher(webSocket);
+        executorLayer = new VertxClientExecutionLayer(vertx, publisher);
 
         ClientTextMessageHandler messageHandler = new ClientTextMessageHandler(executorLayer, pushMessageVisitor);
         webSocket.textMessageHandler(messageHandler);

@@ -5,10 +5,11 @@ import io.vertx.core.Future;
 
 /*
 
-- Integration Execution Layer
+- Execution layer
+  - Responsible for matching requests/responses using correlation IDs
   - Real life, client has its own, server has its own
-  - Created on connection, along with text message handlers
   - Integration combines the 2 execution layers together.
+  - Created on connection, along with text message handlers
   - Requests use vertx future syntax, complete the future immediately
   - Opportunity to intercept messages.
 

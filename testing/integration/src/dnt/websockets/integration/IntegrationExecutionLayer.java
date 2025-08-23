@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dnt.websockets.client.ClientTextMessageHandler;
 import dnt.websockets.communications.ExecutionLayer;
 import dnt.websockets.communications.*;
+import dnt.websockets.server.RequestProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
 import education.common.result.Result;
 import io.vertx.core.Future;
@@ -21,6 +22,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     private final ServerTextMessageHandler serverTextMessageHandler;
     private final ClientTextMessageHandler clientTextMessageHandler;
     private final PushMessageCollector collector;
+    private final RequestProcessor requestProcessor;
 
     private Optional<String> maybeFailNextMessage = Optional.empty();
     private boolean throwOnNextMessage = false;
@@ -30,7 +32,8 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         this.publisher = new IntegrationPublisher(collector);
         this.collector = collector;
 
-        this.serverTextMessageHandler = new ServerTextMessageHandler(this);
+        this.requestProcessor = new RequestProcessor();
+        this.serverTextMessageHandler = new ServerTextMessageHandler(this, requestProcessor);
         this.clientTextMessageHandler = new ClientTextMessageHandler(this, this.collector);
     }
 

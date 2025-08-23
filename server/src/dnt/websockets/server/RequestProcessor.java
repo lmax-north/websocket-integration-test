@@ -9,17 +9,10 @@ import java.util.HashMap;
  */
 public class RequestProcessor implements RequestVisitor
 {
-    private final ExecutionLayer executionLayer;
-
     private final HashMap<String, String> properties = new HashMap<>();
 
-    public RequestProcessor(ExecutionLayer executionLayer)
-    {
-        this.executionLayer = executionLayer;
-    }
-
     @Override
-    public void visit(GetPropertyRequest request)
+    public void visit(ExecutionLayer executionLayer, GetPropertyRequest request)
     {
         String value = properties.get(request.key);
         GetPropertyResponse response = new GetPropertyResponse(request.correlationId, value);
@@ -27,7 +20,7 @@ public class RequestProcessor implements RequestVisitor
     }
 
     @Override
-    public void visit(SetPropertyRequest request)
+    public void visit(ExecutionLayer executionLayer, SetPropertyRequest request)
     {
         if("do_not_send_response".equals(request.key) && "true".equals(request.value))
         {
