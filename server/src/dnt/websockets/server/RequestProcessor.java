@@ -36,7 +36,6 @@ public class RequestProcessor implements RequestVisitor
         }
 
         properties.put(request.key, request.value);
-        System.out.println(properties);
         SetPropertyResponse response = new SetPropertyResponse(request.correlationId);
         executionLayer.respond(response);
     }

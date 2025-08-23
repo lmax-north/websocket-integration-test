@@ -24,7 +24,6 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     private final ServerTextMessageHandler serverTextMessageHandler;
     private final ClientTextMessageHandler clientTextMessageHandler;
     private final PushMessageCollector collector;
-    private final RequestProcessor requestProcessor;
 
     private Optional<String> maybeFailNextMessage = Optional.empty();
     private boolean throwOnNextMessage = false;
@@ -37,8 +36,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         this.publisher = new IntegrationPublisher(collector);
         this.collector = collector;
 
-        this.requestProcessor = requestProcessor;
-        this.serverTextMessageHandler = new ServerTextMessageHandler(this, this.requestProcessor);
+        this.serverTextMessageHandler = new ServerTextMessageHandler(this, requestProcessor);
         this.clientTextMessageHandler = new ClientTextMessageHandler(this, this.collector);
     }
 

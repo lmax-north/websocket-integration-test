@@ -10,7 +10,8 @@ import io.vertx.core.Future;
   - Real life, client has its own, server has its own
   - Integration combines the 2 execution layers together.
   - Created on connection, along with text message handlers
-  - Requests use vertx future syntax, complete the future immediately
+  - Requests use vertx futures
+    - Can choose to complete immediately, or defer until later
   - Opportunity to intercept messages.
 
 - Client/Server Text Message Handlers
