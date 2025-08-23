@@ -25,7 +25,7 @@ public class VertxRestPublisher implements Publisher
     @Override
     public void send(AbstractMessage message)
     {
-        LOGGER.error("Sending {}", message);
+        LOGGER.debug("Sending {}", message);
         try
         {
             if(message instanceof ErrorResponse restResponse)
