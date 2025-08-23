@@ -146,8 +146,12 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         deferredFutures.forEach(DeferredFuture::complete);
         deferredFutures.clear();
     }
+    public boolean isComplete()
+    {
+        return deferredFutures.isEmpty();
+    }
 
-    public class DeferredFuture<T>
+    public static class DeferredFuture<T>
     {
         private final Promise<T> promise;
         private final Supplier<T> supplier;

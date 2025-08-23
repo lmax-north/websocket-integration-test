@@ -30,4 +30,9 @@ public class IntegrationDsl
     {
         this.executionLayer.resumeProcessing();
     }
+
+    public boolean isComplete()
+    {
+        return this.executionLayer.isComplete();
+    }
 }

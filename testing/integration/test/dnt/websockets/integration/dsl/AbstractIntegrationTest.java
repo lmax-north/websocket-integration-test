@@ -3,6 +3,9 @@ package dnt.websockets.integration.dsl;
 import dnt.websockets.integration.IntegrationExecutionLayer;
 import dnt.websockets.integration.PushMessageCollector;
 import dnt.websockets.server.RequestProcessor;
+import org.junit.After;
+
+import static org.junit.Assert.fail;
 
 public abstract class AbstractIntegrationTest
 {
@@ -13,4 +16,15 @@ public abstract class AbstractIntegrationTest
     protected final ServerDsl server = new ServerDsl(executionLayer, requestProcessor);
     protected final ClientDsl client = new ClientDsl(executionLayer, collector);
     protected final IntegrationDsl integration = new IntegrationDsl(executionLayer);
+
+    @After
+    public void tearDown()
+    {
+        boolean complete = integration.isComplete();
+        if(!complete)
+        {
+            integration.resumeProcessing();
+            fail("Deferred futures exist");
+        }
     }
+}
