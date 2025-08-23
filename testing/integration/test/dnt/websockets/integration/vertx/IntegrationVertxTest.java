@@ -32,8 +32,8 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
     @Test
     public void shouldUseRest()
     {
-        rest.getProperty("key: name", "expectedStatusCode: 404");
-        rest.setProperty("key: name", "value: sam", "expectedStatusCode: 200");
-        rest.getProperty("key: name", "expectedValue: sam", "expectedStatusCode: 200");
+        rest.getProperty("key: limit", "expectedStatusCode: 404");
+        rest.setProperty("key: limit", "value: 1000", "expectedStatusCode: 200");
+        rest.getProperty("key: limit", "expectedValue: 1000", "expectedStatusCode: 200");
     }
 }

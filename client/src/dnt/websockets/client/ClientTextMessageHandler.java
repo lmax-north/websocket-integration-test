@@ -29,7 +29,7 @@ public class ClientTextMessageHandler implements Handler<String>
     @Override
     public void handle(String maybeJson)
     {
-        LOGGER.error("Raw input {}", maybeJson);
+        LOGGER.debug("Raw input {}", maybeJson);
         try
         {
             AbstractMessage message = MESSAGE_READER.readValue(maybeJson);

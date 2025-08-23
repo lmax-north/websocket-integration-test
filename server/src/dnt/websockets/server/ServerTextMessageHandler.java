@@ -30,16 +30,20 @@ public class ServerTextMessageHandler implements Handler<String>
     @Override
     public void handle(String maybeJson)
     {
-        LOGGER.error("Receiving {}", maybeJson);
+        LOGGER.debug("Receiving {}", maybeJson);
         try
         {
-            AbstractRequest request = MESSAGE_READER.readValue(maybeJson);
-            request.visit(executionLayer, processor);
+            handle(MESSAGE_READER.<AbstractRequest>readValue(maybeJson));
         }
         catch (JsonProcessingException e)
         {
             LOGGER.warn("Failed to decode json. Error: {}, '{}'", e.getMessage(), maybeJson);
         }
+    }
+
+    public void handle(AbstractRequest request)
+    {
+        request.visit(executionLayer, processor);
     }
 
     public void send(AbstractMessage message)

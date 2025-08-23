@@ -17,8 +17,7 @@ public class RequestProcessor implements RequestVisitor
         String value = properties.get(request.key);
         if(value == null)
         {
-            System.out.println("1");
-            ErrorResponse response = new ErrorResponse(request.correlationId, 404, "Value not found");
+            final ErrorResponse response = new ErrorResponse(request.correlationId, 404, "Value not found");
             executionLayer.respond(response);
         }
         else

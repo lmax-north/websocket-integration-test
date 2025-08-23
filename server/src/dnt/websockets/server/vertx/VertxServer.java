@@ -99,41 +99,24 @@ public class VertxServer
 
     private void restGetProperty(RoutingContext ctx)
     {
-        try
-        {
-            final LazyPublisher restPublisher = new LazyPublisher();
-            final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
-            restPublisher.publisher = new VertxRestPublisher(ctx);
-            final ServerTextMessageHandler restServerTextMessageHandler = new ServerTextMessageHandler(restExecutionLayer, requestProcessor);
+        final ServerTextMessageHandler restServerTextMessageHandler = newRestTextMessageHandler(ctx);
 
-            String key = ctx.queryParams().get("key");
-            GetPropertyRequest request = new GetPropertyRequest(key);
-            String maybeJson = new ObjectMapper().writeValueAsString(request);
-            restServerTextMessageHandler.handle(maybeJson);
-        }
-        catch (JsonProcessingException e)
-        {
-            ctx.response().setStatusCode(500).end();
-        }
+        String key = ctx.queryParams().get("key");
+        restServerTextMessageHandler.handle(new GetPropertyRequest(key));
     }
     private void restSetProperty(RoutingContext ctx)
     {
-        try
-        {
-            final LazyPublisher restPublisher = new LazyPublisher();
-            final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
-            restPublisher.publisher = new VertxRestPublisher(ctx);
-            final ServerTextMessageHandler restServerTextMessageHandler = new ServerTextMessageHandler(restExecutionLayer, requestProcessor);
+        final ServerTextMessageHandler restServerTextMessageHandler = newRestTextMessageHandler(ctx);
 
-            String key = ctx.queryParams().get("key");
-            String value = ctx.queryParams().get("value");
-            SetPropertyRequest request = new SetPropertyRequest(key, value);
-            String maybeJson = new ObjectMapper().writeValueAsString(request);
-            restServerTextMessageHandler.handle(maybeJson);
-        }
-        catch (JsonProcessingException e)
-        {
-            ctx.response().setStatusCode(500).end();
-        }
+        String key = ctx.queryParams().get("key");
+        String value = ctx.queryParams().get("value");
+        restServerTextMessageHandler.handle(new SetPropertyRequest(key, value));
+    }
+    private ServerTextMessageHandler newRestTextMessageHandler(RoutingContext ctx)
+    {
+        final LazyPublisher restPublisher = new LazyPublisher();
+        final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
+        restPublisher.publisher = new VertxRestPublisher(ctx);
+        return new ServerTextMessageHandler(restExecutionLayer, requestProcessor);
     }
 }
