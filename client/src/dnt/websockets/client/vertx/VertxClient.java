@@ -27,15 +27,15 @@ public class VertxClient implements Requests
     private Vertx vertx;
     private VertxClientExecutionLayer executorLayer;
 
-    public VertxClient(String source, PushMessageVisitor pushMessageVisitor)
+    public VertxClient(Vertx vertx, String source, PushMessageVisitor pushMessageVisitor)
     {
+        this.vertx = vertx;
         this.uri = URI.create("/v1/websocket/").resolve(source);
         this.pushMessageVisitor = pushMessageVisitor;
     }
 
     public Future<WebSocket> run()
     {
-        vertx = newVertx();
         HttpClient httpClient = vertx.createHttpClient();
 
         WebSocketConnectOptions options = new WebSocketConnectOptions()

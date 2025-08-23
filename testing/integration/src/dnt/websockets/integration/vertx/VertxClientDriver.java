@@ -7,15 +7,16 @@ import dnt.websockets.communications.SetPropertyResponse;
 import dnt.websockets.integration.PushMessageCollector;
 import education.common.result.Result;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 
 public class VertxClientDriver
 {
     private final VertxClient client;
     private final PushMessageCollector collector = new PushMessageCollector();
 
-    public VertxClientDriver(String source)
+    public VertxClientDriver(Vertx vertx, String source)
     {
-        client = new VertxClient(source, collector);
+        client = new VertxClient(vertx, source, collector);
         client.run()
                 .onFailure(t -> System.out.println("ERROR:" + t.getMessage()))
                 .toCompletionStage().toCompletableFuture().join();

@@ -32,12 +32,16 @@ public class VertxServer
     private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
     private final LazyPublisher restPublisher = new LazyPublisher();
     private final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
+    private final Vertx vertx;
+    private final RequestProcessor requestProcessor = new RequestProcessor();
 
-    private RequestProcessor requestProcessor = new RequestProcessor();
+    public VertxServer(Vertx vertx)
+    {
+        this.vertx = vertx;
+    }
 
     public Future<HttpServer> start()
     {
-        Vertx vertx = newVertx();
         Router router = Router.router(vertx);
         router.get("/property").handler(this::getProperty);
         return vertx.createHttpServer()

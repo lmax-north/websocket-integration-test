@@ -28,4 +28,12 @@ public class IntegrationVertxTest extends AbstractIntegrationVertxTest
     {
         client.setProperty("key: do_not_send_response", "value: true", "expectSuccess: false");
     }
+
+    @Test
+    public void shouldUseRest()
+    {
+        rest.getProperty("key: name", "expectedStatusCode: 404");
+        rest.setProperty("key: name", "value: sam", "expectedStatusCode: 200");
+        rest.getProperty("key: name", "expectedValue: sam", "expectedStatusCode: 200");
+    }
 }
