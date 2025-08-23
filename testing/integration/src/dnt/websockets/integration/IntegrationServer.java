@@ -14,10 +14,10 @@ public class IntegrationServer
     private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
     private final RequestProcessor requestProcessor;
 
-    public IntegrationServer(final ExecutionLayer executionLayer)
+    public IntegrationServer(final ExecutionLayer executionLayer, RequestProcessor requestProcessor)
     {
-        this.requestProcessor = new RequestProcessor();
-        this.textMessageHandlers.add(new ServerTextMessageHandler(executionLayer, requestProcessor));
+        this.requestProcessor = requestProcessor;
+        this.textMessageHandlers.add(new ServerTextMessageHandler(executionLayer, this.requestProcessor));
     }
 
     public void push(AbstractMessage message)
@@ -36,5 +36,10 @@ public class IntegrationServer
                 iterator.remove();
             }
         }
+    }
+
+    public String getProperty(String key)
+    {
+        return requestProcessor.get(key);
     }
 }

@@ -40,4 +40,9 @@ public class RequestProcessor implements RequestVisitor
         SetPropertyResponse response = new SetPropertyResponse(request.correlationId);
         executionLayer.respond(response);
     }
+
+    public String get(String key)
+    {
+        return properties.get(key);
+    }
 }

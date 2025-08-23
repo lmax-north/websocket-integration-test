@@ -20,4 +20,14 @@ public class IntegrationDsl
     {
         this.executionLayer.throwOnNextMessage();
     }
+
+    public void pauseProcessing()
+    {
+        this.executionLayer.pauseProcessing();
+    }
+
+    public void resumeProcessing()
+    {
+        this.executionLayer.resumeProcessing();
+    }
 }

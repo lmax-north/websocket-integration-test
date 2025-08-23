@@ -8,10 +8,12 @@ import dnt.websockets.server.RequestProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
 import education.common.result.Result;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Supplier;
 
 public class IntegrationExecutionLayer implements ExecutionLayer
 {
@@ -27,19 +29,46 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     private Optional<String> maybeFailNextMessage = Optional.empty();
     private boolean throwOnNextMessage = false;
 
-    public IntegrationExecutionLayer(PushMessageCollector collector)
+    private final Queue<DeferredFuture<?>> deferredFutures = new LinkedList<>();
+    private boolean pauseProcessing;
+
+    public IntegrationExecutionLayer(RequestProcessor requestProcessor, PushMessageCollector collector)
     {
         this.publisher = new IntegrationPublisher(collector);
         this.collector = collector;
 
-        this.requestProcessor = new RequestProcessor();
-        this.serverTextMessageHandler = new ServerTextMessageHandler(this, requestProcessor);
+        this.requestProcessor = requestProcessor;
+        this.serverTextMessageHandler = new ServerTextMessageHandler(this, this.requestProcessor);
         this.clientTextMessageHandler = new ClientTextMessageHandler(this, this.collector);
     }
 
     @Override
     public <T extends AbstractResponse> Future<Result<T, String>> request(AbstractRequest request)
     {
+        if(pauseProcessing)
+        {
+            Supplier<Result<T, Object>> supplier = () ->
+            {
+                try
+                {
+                    serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
+                    T lastMessage = collector.getLastMessage();
+                    if (lastMessage == null)
+                    {
+                        LOGGER.error("No response received.");
+                        return Result.failure("No response received");
+                    }
+                    return intercept(request, lastMessage);
+                }
+                catch (JsonProcessingException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            };
+            DeferredFuture<Result<T, Object>> deferredFuture = new DeferredFuture<>(supplier);
+            deferredFutures.add(deferredFuture);
+            return deferredFuture.future().map(r -> r.mapError(String::valueOf));
+        }
         return Future.succeededFuture()
                 .map(unused ->
                 {
@@ -105,5 +134,46 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     public void throwOnNextMessage()
     {
         throwOnNextMessage = true;
+    }
+
+    public void pauseProcessing()
+    {
+        this.pauseProcessing = true;
+    }
+    public void resumeProcessing()
+    {
+        this.pauseProcessing = false;
+        deferredFutures.forEach(DeferredFuture::complete);
+        deferredFutures.clear();
+    }
+
+    public class DeferredFuture<T>
+    {
+        private final Promise<T> promise;
+        private final Supplier<T> supplier;
+
+        public DeferredFuture(Supplier<T> supplier)
+        {
+            this.promise = Promise.promise();
+            this.supplier = supplier;
+        }
+
+        public Future<T> future()
+        {
+            return promise.future();
+        }
+
+        public void complete()
+        {
+            try
+            {
+                T result = supplier.get();
+                promise.complete(result);
+            }
+            catch (Exception e)
+            {
+                promise.fail(e);
+            }
+        }
     }
 }

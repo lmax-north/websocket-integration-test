@@ -53,14 +53,20 @@ public class ClientDsl
         final DslParams params = DslParams.create(args,
                 new RequiredArg("key"),
                 new RequiredArg("value"),
+                new OptionalArg("complete").setDefault("true"),
                 new OptionalArg("expectSuccess").setDefault("true"));
         boolean expectSuccess = params.valueAsBoolean("expectSuccess");
 
         String key = params.value("key");
         String value = params.value("value");
+        boolean complete = params.valueAsBoolean("complete");
 
-        Result<SetPropertyResponse, String> result = join(clientDriver.setProperty(key, value));
-        assertThat(result.isSuccess()).isEqualTo(expectSuccess);
+        Future<Result<SetPropertyResponse, String>> future = clientDriver.setProperty(key, value);
+        if(complete)
+        {
+            Result<SetPropertyResponse, String> result = join(future);
+            assertThat(result.isSuccess()).isEqualTo(expectSuccess);
+        }
     }
 
     private static <R> R join(Future<R> future)
@@ -78,5 +84,10 @@ public class ClientDsl
     {
         AbstractMessage lastMessage = collector.getLastMessage();
         assertThat(lastMessage).isNull();
+    }
+
+    public void verifyName(String sam)
+    {
+
     }
 }

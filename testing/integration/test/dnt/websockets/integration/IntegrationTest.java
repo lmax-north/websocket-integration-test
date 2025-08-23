@@ -48,4 +48,16 @@ public class IntegrationTest extends AbstractIntegrationTest
         client.setProperty("key: name", "value: sam", "expectSuccess: false");
     }
 
+    @Test
+    public void shouldPauseProcessing()
+    {
+        client.setProperty("key: name", "value: sam", "complete: true");
+
+        integration.pauseProcessing();
+        client.setProperty("key: name", "value: terri", "complete: false");
+
+        server.verifyProperty("key: name", "expectedValue: sam");
+        integration.resumeProcessing();
+        server.verifyProperty("key: name", "expectedValue: terri");
+    }
 }
