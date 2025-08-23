@@ -3,9 +3,10 @@ package dnt.websockets.integration.vertx.dsl;
 import com.lmax.simpledsl.api.DslParams;
 import com.lmax.simpledsl.api.OptionalArg;
 import com.lmax.simpledsl.api.RequiredArg;
-import dnt.websockets.communications.SetPropertyResponse;
 import dnt.websockets.integration.vertx.VertxRestDriver;
-import education.common.result.Result;
+import io.vertx.core.Future;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,12 +23,14 @@ public class RestVertxDsl
     {
         final DslParams params = DslParams.create(args,
                 new RequiredArg("key"),
-                new RequiredArg("expectedValue"),
+                new OptionalArg("expectedValue"),
                 new OptionalArg("expectedStatusCode").setDefault("200"));
         String key = params.value("key");
-        String expectedValue = params.value("expectedValue");
-        String actualValue = this.restDriver.getProperty(key, params.valueAsInt("expectedStatusCode"));
-        assertThat(expectedValue).isEqualTo(actualValue);
+        String actualValue = join(restDriver.getProperty(key, params.valueAsInt("expectedStatusCode")));
+
+        Optional<String> maybeExpectedValue = params.valueAsOptional("expectedValue");
+        maybeExpectedValue.ifPresent(expectedValue ->
+                assertThat(maybeExpectedValue.orElse(null)).isEqualTo(actualValue));
     }
 
     public void setProperty(String... args)
@@ -35,9 +38,14 @@ public class RestVertxDsl
         final DslParams params = DslParams.create(args,
                 new RequiredArg("key"),
                 new RequiredArg("value"),
-                new OptionalArg("expectStatusCode").setDefault("200"));
+                new OptionalArg("expectedStatusCode").setDefault("200"));
         String key = params.value("key");
         String value = params.value("value");
-        this.restDriver.setProperty(key, value, params.valueAsInt("expectedStatusCode"));
+        restDriver.setProperty(key, value, params.valueAsInt("expectedStatusCode"));
+    }
+
+    private <R> R join(Future<R> future)
+    {
+        return future.toCompletionStage().toCompletableFuture().join();
     }
 }

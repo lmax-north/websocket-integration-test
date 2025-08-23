@@ -3,6 +3,7 @@ package dnt.websockets.server.vertx;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.ErrorResponse;
 import dnt.websockets.communications.Publisher;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -24,13 +25,21 @@ public class VertxRestPublisher implements Publisher
     @Override
     public void send(AbstractMessage message)
     {
-        LOGGER.debug("Sending {}", message);
+        LOGGER.error("Sending {}", message);
         try
         {
-            String s = OBJECT_MAPPER.writeValueAsString(message);
+            if(message instanceof ErrorResponse restResponse)
+            {
+                String response = OBJECT_MAPPER.writeValueAsString(message);
+                routingContext.response()
+                        .setStatusCode(restResponse.statusCode)
+                        .send(response);
+                return;
+            }
+            String response = OBJECT_MAPPER.writeValueAsString(message);
             routingContext.response()
                     .setStatusCode(200)
-                    .send(s);
+                    .send(response);
         }
         catch (JsonProcessingException e)
         {

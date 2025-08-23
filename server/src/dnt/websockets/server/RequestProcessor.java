@@ -15,8 +15,17 @@ public class RequestProcessor implements RequestVisitor
     public void visit(ExecutionLayer executionLayer, GetPropertyRequest request)
     {
         String value = properties.get(request.key);
-        GetPropertyResponse response = new GetPropertyResponse(request.correlationId, value);
-        executionLayer.respond(response);
+        if(value == null)
+        {
+            System.out.println("1");
+            ErrorResponse response = new ErrorResponse(request.correlationId, 404, "Value not found");
+            executionLayer.respond(response);
+        }
+        else
+        {
+            GetPropertyResponse response = new GetPropertyResponse(request.correlationId, value);
+            executionLayer.respond(response);
+        }
     }
 
     @Override

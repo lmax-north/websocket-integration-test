@@ -8,18 +8,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="common" />
-    <orderEntry type="module" module-name="client" />
-    <orderEntry type="module" module-name="communications" />
-    <orderEntry type="module" module-name="websockets-vertx" />
+    <orderEntry type="library" scope="TEST" name="awaitility" level="project" />
+    <orderEntry type="library" scope="TEST" name="assertj.core" level="project" />
+    <orderEntry type="library" scope="TEST" name="lmax.simple.dsl" level="project" />
+    <orderEntry type="library" scope="TEST" name="junit" level="project" />
     <orderEntry type="library" name="slf4j.simple" level="project" />
     <orderEntry type="library" name="fasterxml.jackson.core.databind" level="project" />
     <orderEntry type="library" name="fasterxml.jackson.core.annotations" level="project" />
+    <orderEntry type="library" name="io.vertx.web.client" level="project" />
     <orderEntry type="library" name="io.vertx.web" level="project" />
-    <orderEntry type="library" scope="TEST" name="junit" level="project" />
-    <orderEntry type="library" scope="TEST" name="assertj.core" level="project" />
-    <orderEntry type="library" scope="TEST" name="awaitility" level="project" />
-    <orderEntry type="library" scope="TEST" name="lmax.simple.dsl" level="project" />
+    <orderEntry type="module" module-name="communications" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="websockets-vertx" />
     <orderEntry type="module" module-name="server" />
+    <orderEntry type="module" module-name="client" />
   </component>
 </module>

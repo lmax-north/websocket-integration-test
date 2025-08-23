@@ -1,30 +1,58 @@
 package dnt.websockets.integration.vertx;
 
-import dnt.websockets.client.vertx.VertxClient;
-import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.GetPropertyResponse;
-import dnt.websockets.communications.SetPropertyResponse;
-import dnt.websockets.integration.PushMessageCollector;
-import education.common.result.Result;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
 
 public class VertxRestDriver
 {
-    private final Vertx vertx;
+    public static final int PORT = 7777;
+    public static final String HOST = "localhost";
+    private final WebClient client;
 
     public VertxRestDriver(Vertx vertx)
     {
-        this.vertx = vertx;
+        client = WebClient.create(vertx);
     }
 
-    public String getProperty(String key, int expectedStatusCode)
+    public Future<String> getProperty(String key, int expectedStatusCode)
     {
-        return "";
+        return client
+                .get(PORT, HOST, "/property")
+                .addQueryParam("key", key)
+                .timeout(2000)
+                .send()
+                .map(response -> {
+                    int actualStatusCode = response.statusCode();
+                    if (actualStatusCode != expectedStatusCode)
+                        throw new RuntimeException(String.format("Unexpected status code. Expected: %d, Actual: %d", expectedStatusCode, actualStatusCode));
+
+                    if(response.statusCode() < 300)
+                    {
+                        JsonObject json = response.bodyAsJsonObject();
+                        return String.valueOf(json.getValue("value"));
+                    }
+                    return null;
+                });
     }
 
-    public void setProperty(String key, String value, int expectedStatusCode)
+    public Future<Void> setProperty(String key, String value, int expectedStatusCode)
     {
-
+        return client
+                .post(PORT, HOST, "/property")
+                .addQueryParam("key", key)
+                .addQueryParam("value", value)
+                .timeout(2000)
+                .send()
+                .map(response ->
+                {
+                    int actualStatusCode = response.statusCode();
+                    if (actualStatusCode != expectedStatusCode)
+                        throw new RuntimeException(String.format("Unexpected status code. Expected: %d, Actual: %d", expectedStatusCode, actualStatusCode));
+                    return null;
+                });
     }
 }

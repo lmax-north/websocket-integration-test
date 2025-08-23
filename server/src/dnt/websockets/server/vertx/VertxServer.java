@@ -1,10 +1,8 @@
 package dnt.websockets.server.vertx;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import dnt.websockets.communications.AbstractMessage;
-import dnt.websockets.communications.ExecutionLayer;
-import dnt.websockets.communications.GetPropertyRequest;
-import dnt.websockets.communications.Publisher;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dnt.websockets.communications.*;
 import dnt.websockets.server.RequestProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
 import io.vertx.core.Future;
@@ -21,17 +19,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static dnt.websockets.server.ServerTextMessageHandler.OBJECT_MAPPER;
-import static dnt.websockets.vertx.VertxFactory.newVertx;
-
 public class VertxServer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(VertxServer.class);
     private static final short WEBSOCKET_CODE_FAILED_TO_CONNECT = 100;
 
     private final List<ServerTextMessageHandler> textMessageHandlers = new ArrayList<>();
-    private final LazyPublisher restPublisher = new LazyPublisher();
-    private final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
     private final Vertx vertx;
     private final RequestProcessor requestProcessor = new RequestProcessor();
 
@@ -43,7 +36,8 @@ public class VertxServer
     public Future<HttpServer> start()
     {
         Router router = Router.router(vertx);
-        router.get("/property").handler(this::getProperty);
+        router.get("/property").handler(this::restGetProperty);
+        router.post("/property").handler(this::restSetProperty);
         return vertx.createHttpServer()
                 .requestHandler(router)
                 .webSocketHandler(this::handle)
@@ -52,24 +46,6 @@ public class VertxServer
                     LOGGER.info("Server started on port {}", httpServer.actualPort());
                 })
                 .onFailure(t -> LOGGER.error("Failed to start server", t));
-    }
-
-    private void getProperty(RoutingContext ctx)
-    {
-        try
-        {
-            restPublisher.publisher = new VertxRestPublisher(ctx);
-            ServerTextMessageHandler restServerTextMessageHandler = new ServerTextMessageHandler(restExecutionLayer, requestProcessor);
-
-            String key = ctx.queryParams().get("key");
-            GetPropertyRequest request = new GetPropertyRequest(key);
-            restServerTextMessageHandler.handle(OBJECT_MAPPER.writeValueAsString(request));
-        }
-        catch (JsonProcessingException e)
-        {
-            throw new RuntimeException(e);
-        }
-        ctx.response().send();
     }
 
     private void handle(ServerWebSocket serverWebSocket)
@@ -117,6 +93,47 @@ public class VertxServer
         public void send(AbstractMessage message)
         {
             publisher.send(message);
+        }
+    }
+
+
+    private void restGetProperty(RoutingContext ctx)
+    {
+        try
+        {
+            final LazyPublisher restPublisher = new LazyPublisher();
+            final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
+            restPublisher.publisher = new VertxRestPublisher(ctx);
+            final ServerTextMessageHandler restServerTextMessageHandler = new ServerTextMessageHandler(restExecutionLayer, requestProcessor);
+
+            String key = ctx.queryParams().get("key");
+            GetPropertyRequest request = new GetPropertyRequest(key);
+            String maybeJson = new ObjectMapper().writeValueAsString(request);
+            restServerTextMessageHandler.handle(maybeJson);
+        }
+        catch (JsonProcessingException e)
+        {
+            ctx.response().setStatusCode(500).end();
+        }
+    }
+    private void restSetProperty(RoutingContext ctx)
+    {
+        try
+        {
+            final LazyPublisher restPublisher = new LazyPublisher();
+            final VertxServerExecutionLayer restExecutionLayer = new VertxServerExecutionLayer(restPublisher);
+            restPublisher.publisher = new VertxRestPublisher(ctx);
+            final ServerTextMessageHandler restServerTextMessageHandler = new ServerTextMessageHandler(restExecutionLayer, requestProcessor);
+
+            String key = ctx.queryParams().get("key");
+            String value = ctx.queryParams().get("value");
+            SetPropertyRequest request = new SetPropertyRequest(key, value);
+            String maybeJson = new ObjectMapper().writeValueAsString(request);
+            restServerTextMessageHandler.handle(maybeJson);
+        }
+        catch (JsonProcessingException e)
+        {
+            ctx.response().setStatusCode(500).end();
         }
     }
 }
