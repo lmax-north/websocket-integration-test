@@ -45,49 +45,32 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     @Override
     public <T extends AbstractResponse> Future<Result<T, String>> request(AbstractRequest request)
     {
+        final Supplier<Result<T, Object>> processRequest = () ->
+        {
+            try
+            {
+                serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
+                T lastMessage = collector.getLastMessage();
+                if (lastMessage == null)
+                {
+                    LOGGER.error("No response received.");
+                    return Result.failure("No response received");
+                }
+                return intercept(request, lastMessage);
+            }
+            catch (JsonProcessingException e)
+            {
+                throw new RuntimeException(e);
+            }
+        };
         if(pauseProcessing)
         {
-            Supplier<Result<T, Object>> supplier = () ->
-            {
-                try
-                {
-                    serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
-                    T lastMessage = collector.getLastMessage();
-                    if (lastMessage == null)
-                    {
-                        LOGGER.error("No response received.");
-                        return Result.failure("No response received");
-                    }
-                    return intercept(request, lastMessage);
-                }
-                catch (JsonProcessingException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            };
-            DeferredFuture<Result<T, Object>> deferredFuture = new DeferredFuture<>(supplier);
+            DeferredFuture<Result<T, Object>> deferredFuture = new DeferredFuture<>(processRequest);
             deferredFutures.add(deferredFuture);
             return deferredFuture.future().map(r -> r.mapError(String::valueOf));
         }
         return Future.succeededFuture()
-                .map(unused ->
-                {
-                    try
-                    {
-                        serverTextMessageHandler.handle(ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsString(request));
-                        T lastMessage = collector.getLastMessage();
-                        if(lastMessage == null)
-                        {
-                            LOGGER.error("No response received.");
-                            return Result.<T, Object>failure("No response received");
-                        }
-                        return intercept(request, lastMessage);
-                    }
-                    catch (JsonProcessingException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                })
+                .map(unused -> processRequest.get())
                 .map(r -> r.mapError(String::valueOf));
     }
 
@@ -151,7 +134,8 @@ public class IntegrationExecutionLayer implements ExecutionLayer
         return deferredFutures.isEmpty();
     }
 
-    public static class DeferredFuture<T>
+
+    private static class DeferredFuture<T>
     {
         private final Promise<T> promise;
         private final Supplier<T> supplier;
