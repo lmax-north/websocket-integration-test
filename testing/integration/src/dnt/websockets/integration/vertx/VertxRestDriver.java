@@ -17,4 +17,14 @@ public class VertxRestDriver
     {
         this.vertx = vertx;
     }
+
+    public String getProperty(String key, int expectedStatusCode)
+    {
+        return "";
+    }
+
+    public void setProperty(String key, String value, int expectedStatusCode)
+    {
+
+    }
 }
