@@ -1,7 +1,5 @@
 package dnt.websockets.server.vertx;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dnt.websockets.communications.*;
 import dnt.websockets.server.RequestProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
@@ -9,12 +7,15 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ public class VertxServer
     public Future<HttpServer> start()
     {
         Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
         router.get("/property").handler(this::restGetProperty);
         router.post("/property").handler(this::restSetProperty);
         return vertx.createHttpServer()
@@ -107,10 +109,8 @@ public class VertxServer
     private void restSetProperty(RoutingContext ctx)
     {
         final ServerTextMessageHandler restServerTextMessageHandler = newRestTextMessageHandler(ctx);
-
-        String key = ctx.queryParams().get("key");
-        String value = ctx.queryParams().get("value");
-        restServerTextMessageHandler.handle(new SetPropertyRequest(key, value));
+        JsonObject json = ctx.getBodyAsJson();
+        restServerTextMessageHandler.handle(new SetPropertyRequest(json.getString("key"), json.getString("value")));
     }
     private ServerTextMessageHandler newRestTextMessageHandler(RoutingContext ctx)
     {
