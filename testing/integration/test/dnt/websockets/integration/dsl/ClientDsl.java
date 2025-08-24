@@ -59,8 +59,8 @@ public class ClientDsl
                 new OptionalArg("expectSuccess").setDefault("true"));
         boolean expectSuccess = params.valueAsBoolean("expectSuccess");
 
-        String key = params.value("key");
-        String value = params.value("value");
+        String key = "<NULL>".equals(params.value("key")) ? null : params.value("key");
+        String value = "<NULL>".equals(params.value("value")) ? null : params.value("value");
         boolean complete = params.valueAsBoolean("complete");
 
         Future<Result<SetPropertyResponse, String>> future = clientDriver.setProperty(key, value);

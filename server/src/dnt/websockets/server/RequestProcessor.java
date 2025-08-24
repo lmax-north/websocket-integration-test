@@ -36,7 +36,7 @@ public class RequestProcessor implements RequestVisitor
             return;
         }
 
-        Optional<ErrorResponse> maybeError = SetPropertyRequest.validate(request);
+        final Optional<ErrorResponse> maybeError = request.validate();
         if(maybeError.isPresent())
         {
             executionLayer.respond(maybeError.get());

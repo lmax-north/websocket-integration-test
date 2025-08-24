@@ -88,4 +88,16 @@ public class IntegrationTest extends AbstractIntegrationTest
     {
         client.setProperty("key: ", "value: sam", "expectSuccess: false");
     }
+
+    @Test
+    public void shouldNotAcceptNullValue()
+    {
+        client.setProperty("key: name", "value: <NULL>", "expectSuccess: false");
+    }
+
+    @Test
+    public void shouldNotAcceptNullKey()
+    {
+        client.setProperty("key: <NULL>", "value: sam", "expectSuccess: false");
+    }
 }
