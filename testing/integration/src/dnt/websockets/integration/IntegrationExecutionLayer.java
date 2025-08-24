@@ -85,6 +85,10 @@ public class IntegrationExecutionLayer implements ExecutionLayer
             maybeFailNextMessage = Optional.empty();
             return failure;
         }
+        if(lastMessage instanceof ErrorResponse errorResponse) // Nice addition JDK 21
+        {
+            return Result.failure(errorResponse.message);
+        }
         return Result.success(lastMessage);
     }
 

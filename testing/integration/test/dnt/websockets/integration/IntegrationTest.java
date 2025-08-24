@@ -25,6 +25,7 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void serverShouldFutureFailNextMessage()
     {
+        client.setProperty("key: name", "value: sam");
         client.getProperty("key: name", "expectException: false");
 
         integration.throwOnNextMessage();
@@ -59,5 +60,17 @@ public class IntegrationTest extends AbstractIntegrationTest
         server.verifyProperty("key: name", "expectedValue: sam");
         integration.resumeProcessing();
         server.verifyProperty("key: name", "expectedValue: terri");
+    }
+
+    @Test
+    public void shouldNotAcceptEmptyValue()
+    {
+        client.setProperty("key: name", "value: ", "expectSuccess: false");
+    }
+
+    @Test
+    public void shouldNotAcceptEmptyKey()
+    {
+        client.setProperty("key: ", "value: sam", "expectSuccess: false");
     }
 }

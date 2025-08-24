@@ -43,7 +43,9 @@ public class ClientDsl
         }
 
         Result<GetPropertyResponse, String> result = join(clientDriver.getProperty(key));
-        assertThat(result.isSuccess()).isEqualTo(expectSuccess);
+        assertThat(result.isSuccess())
+                .describedAs(result.toString())
+                .isEqualTo(expectSuccess);
         params.valueAsOptional("expectedValue").ifPresent(expectedValue ->
                 assertThat(result.success().value).isEqualTo(expectedValue));
     }
@@ -84,10 +86,5 @@ public class ClientDsl
     {
         AbstractMessage lastMessage = collector.getLastMessage();
         assertThat(lastMessage).isNull();
-    }
-
-    public void verifyName(String sam)
-    {
-
     }
 }

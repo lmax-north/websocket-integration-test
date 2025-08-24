@@ -3,6 +3,7 @@ package dnt.websockets.server;
 import dnt.websockets.communications.*;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Class to handle requests
@@ -32,6 +33,13 @@ public class RequestProcessor implements RequestVisitor
     {
         if("do_not_send_response".equals(request.key) && "true".equals(request.value))
         {
+            return;
+        }
+
+        Optional<ErrorResponse> maybeError = SetPropertyRequest.validate(request);
+        if(maybeError.isPresent())
+        {
+            executionLayer.respond(maybeError.get());
             return;
         }
 
