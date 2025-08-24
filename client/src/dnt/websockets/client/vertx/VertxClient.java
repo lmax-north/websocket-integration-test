@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
-import static dnt.websockets.vertx.VertxFactory.newVertx;
-
 public class VertxClient implements Requests
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(VertxClient.class);

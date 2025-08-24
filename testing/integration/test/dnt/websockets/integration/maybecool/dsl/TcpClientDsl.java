@@ -9,7 +9,6 @@ import dnt.websockets.communications.SetPropertyResponse;
 import dnt.websockets.integration.maybecool.TcpClientDriver;
 import education.common.result.Result;
 import io.vertx.core.Future;
-import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 
 import static java.time.Duration.ofMillis;
