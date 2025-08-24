@@ -1,25 +1,19 @@
 package dnt.websockets.integration;
 
-import dnt.websockets.communications.ExecutionLayer;
+import dnt.websockets.client.ExecutionLayer;
 import dnt.websockets.communications.PushMessage;
-import dnt.websockets.server.RequestProcessor;
 
 public class ServerDriver
 {
-    private final IntegrationServer server;
+    private final ExecutionLayer executionLayer;
 
-    public ServerDriver(final ExecutionLayer executionLayer, RequestProcessor requestProcessor)
+    public ServerDriver(ExecutionLayer executionLayer)
     {
-        server = new IntegrationServer(executionLayer, requestProcessor);
+        this.executionLayer = executionLayer;
     }
 
-    public void broadcastMessage(final PushMessage message)
+    public void broadcastMessage()
     {
-        server.push(message);
-    }
-
-    public String getProperty(String key)
-    {
-        return server.getProperty(key);
+        executionLayer.broadcastServerToClient(new PushMessage());
     }
 }
