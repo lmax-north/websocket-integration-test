@@ -14,7 +14,7 @@ public class ClientTextMessageHandler implements Handler<String>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientTextMessageHandler.class);
 
-    public static final ObjectMapper OBJECT_MAPPER = getClientObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = newClientObjectMapper();
     private static final ObjectReader MESSAGE_READER = getClientMessageReader(OBJECT_MAPPER);
 
     private final ResponseVisitor processor;
@@ -57,7 +57,7 @@ public class ClientTextMessageHandler implements Handler<String>
         message.visit(pushMessageProcessor);
     }
 
-    private static ObjectMapper getClientObjectMapper()
+    private static ObjectMapper newClientObjectMapper()
     {
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         mapper.registerSubtypes(new NamedType(GetPropertyResponse.class, GetPropertyResponse.class.getSimpleName()));

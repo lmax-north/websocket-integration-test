@@ -12,14 +12,13 @@ public class VertxPublisher implements Publisher
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(VertxPublisher.class);
     private static final short WEBSOCKET_CODE_FAILED_TO_SEND_RESPONSE = 102;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final WebSocketBase serverWebSocket;
-    private final ObjectMapper objectMapper;
 
     public VertxPublisher(WebSocketBase serverWebSocket)
     {
         this.serverWebSocket = serverWebSocket;
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -28,7 +27,7 @@ public class VertxPublisher implements Publisher
         LOGGER.debug("Sending {}", message);
         try
         {
-            String s = objectMapper.writeValueAsString(message);
+            String s = OBJECT_MAPPER.writeValueAsString(message);
             System.out.println(s);
             serverWebSocket.writeTextMessage(s);
         }

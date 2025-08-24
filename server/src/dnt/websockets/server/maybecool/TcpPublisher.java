@@ -14,14 +14,13 @@ import java.net.*;
 public class TcpPublisher implements Publisher
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(TcpPublisher.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final ObjectMapper objectMapper;
     private final PrintWriter writer;
 
     public TcpPublisher(Socket socket) throws IOException
     {
         this.writer = new PrintWriter(socket.getOutputStream(), true);
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -30,7 +29,7 @@ public class TcpPublisher implements Publisher
         LOGGER.debug("Sending {}", message);
         try
         {
-            writer.println(objectMapper.writeValueAsString(message));
+            writer.println(OBJECT_MAPPER.writeValueAsString(message));
         }
         catch (JsonProcessingException e)
         {

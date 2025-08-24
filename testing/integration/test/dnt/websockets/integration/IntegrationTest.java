@@ -1,7 +1,15 @@
 package dnt.websockets.integration;
 
+import dnt.websockets.client.ClientTextMessageHandler;
 import dnt.websockets.integration.dsl.AbstractIntegrationTest;
+import dnt.websockets.server.ServerTextMessageHandler;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.time.LocalDateTime;
+
+import static dnt.websockets.client.ClientTextMessageHandler.OBJECT_MAPPER;
 
 public class IntegrationTest extends AbstractIntegrationTest
 {

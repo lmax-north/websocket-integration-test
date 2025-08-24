@@ -14,7 +14,7 @@ public class ServerTextMessageHandler implements Handler<String>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerTextMessageHandler.class);
 
-    public static final ObjectMapper OBJECT_MAPPER = getServerObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = newServerObjectMapper();
     private static final ObjectReader MESSAGE_READER = getServerMessageReader(OBJECT_MAPPER);
 
     private final RequestVisitor processor;
@@ -52,7 +52,7 @@ public class ServerTextMessageHandler implements Handler<String>
         executionLayer.send(message);
     }
 
-    private static ObjectMapper getServerObjectMapper()
+    private static ObjectMapper newServerObjectMapper()
     {
         ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         objectMapper.registerSubtypes(new NamedType(GetPropertyRequest.class, GetPropertyRequest.class.getSimpleName()));
