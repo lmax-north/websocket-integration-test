@@ -125,11 +125,14 @@ public class IntegrationExecutionLayer implements ExecutionLayer
     {
         this.pauseProcessing = true;
     }
-    public void resumeProcessing()
+    public void resumeProcessing(int messageCount)
     {
         this.pauseProcessing = false;
-        deferredFutures.forEach(DeferredFuture::complete);
-        deferredFutures.clear();
+        int count = Math.min(deferredFutures.size(), messageCount);
+        for (int i = 0; i < count; i++)
+        {
+            deferredFutures.remove().complete();
+        }
     }
     public boolean isComplete()
     {

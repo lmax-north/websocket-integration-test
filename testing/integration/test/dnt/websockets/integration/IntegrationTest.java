@@ -60,14 +60,21 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void shouldPauseProcessing()
     {
-        client.setProperty("key: name", "value: sam", "complete: true");
+        client.setProperty("key: name", "value: alex", "complete: true");
 
         integration.pauseProcessing();
-        client.setProperty("key: name", "value: terri", "complete: false");
+        client.setProperty("key: name", "value: drew", "complete: false");
+        client.setProperty("key: name", "value: riley", "complete: false");
+        client.setProperty("key: name", "value: sam", "complete: false");
+        client.setProperty("key: name", "value: terry", "complete: false");
 
-        server.verifyProperty("key: name", "expectedValue: sam");
+        server.verifyProperty("key: name", "expectedValue: alex");
+
+        integration.resumeProcessing("messageCount: 1");
+        server.verifyProperty("key: name", "expectedValue: drew");
+
         integration.resumeProcessing();
-        server.verifyProperty("key: name", "expectedValue: terri");
+        server.verifyProperty("key: name", "expectedValue: terry");
     }
 
     @Test

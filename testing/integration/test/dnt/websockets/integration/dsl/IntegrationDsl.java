@@ -1,5 +1,8 @@
 package dnt.websockets.integration.dsl;
 
+import com.lmax.simpledsl.api.DslParams;
+import com.lmax.simpledsl.api.OptionalArg;
+import com.lmax.simpledsl.api.RequiredArg;
 import dnt.websockets.integration.IntegrationExecutionLayer;
 
 public class IntegrationDsl
@@ -26,9 +29,11 @@ public class IntegrationDsl
         this.executionLayer.pauseProcessing();
     }
 
-    public void resumeProcessing()
+    public void resumeProcessing(String... args)
     {
-        this.executionLayer.resumeProcessing();
+        final DslParams params = DslParams.create(args,
+                new OptionalArg("messageCount").setDefault("99999999"));
+        this.executionLayer.resumeProcessing(params.valueAsInt("messageCount"));
     }
 
     public boolean isComplete()
