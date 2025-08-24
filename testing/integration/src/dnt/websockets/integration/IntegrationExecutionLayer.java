@@ -72,7 +72,7 @@ public class IntegrationExecutionLayer implements ExecutionLayer
                 .map(r -> r.mapError(String::valueOf));
     }
 
-    private <T extends AbstractResponse> Result<T, Object> intercept(AbstractRequest request, T lastMessage)
+    private <T extends AbstractResponse> Result<T, Object> intercept(AbstractRequest notNeedForAnyScenarioYet, T lastMessage)
     {
         if(throwOnNextMessage)
         {
