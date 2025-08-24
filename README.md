@@ -5,11 +5,10 @@
 Show that we can integration test our websocket applications without spinning up http server.
 This will speed up our tests.
 
-For example, our current account api, public api websocket integration tests spin up a http server.
+For example, our current public api websocket integration tests spin up a http server.
 Introduces race conditions, lose control of messaging, debugging is unreliable, slow.
 Maybe worse, for euclid, we don't have integration and every test is run in acceptance, 
 and acceptance needs K8S to be up.  
-I think we did this was, because spinning up an http server is quick and easy, almost a 1 liner.
 
 Repo Link
 https://github.com/lmax-north/websocket-integration-test
