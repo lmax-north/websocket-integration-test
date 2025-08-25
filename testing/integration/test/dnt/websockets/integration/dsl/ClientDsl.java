@@ -79,6 +79,7 @@ public class ClientDsl
     public void verifyMessage(String className)
     {
         AbstractMessage lastMessage = collector.getLastMessage();
+        assertThat(lastMessage).isNotNull();
         assertThat(lastMessage.getClass().getSimpleName()).isEqualTo(className);
     }
 

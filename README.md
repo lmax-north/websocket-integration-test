@@ -12,6 +12,11 @@ Maybe worse, for euclid, we don't have integration and every test is run in acce
 and acceptance needs K8S to be up.  
 I think we did this was, because spinning up an http server is quick and easy, almost a 1 liner.
 
+##  Quick Start
+
+`dnt.websockets.integration.IntegrationTest` is the goal of this repository, a quick IT that tests 
+the implementation, without the websocket infrastructure.
+
 Repo Link
 https://github.com/lmax-north/websocket-integration-test
 

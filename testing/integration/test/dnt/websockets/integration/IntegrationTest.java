@@ -1,15 +1,7 @@
 package dnt.websockets.integration;
 
-import dnt.websockets.client.ClientTextMessageHandler;
 import dnt.websockets.integration.dsl.AbstractIntegrationTest;
-import dnt.websockets.server.ServerTextMessageHandler;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.time.LocalDateTime;
-
-import static dnt.websockets.client.ClientTextMessageHandler.OBJECT_MAPPER;
 
 public class IntegrationTest extends AbstractIntegrationTest
 {
@@ -75,6 +67,16 @@ public class IntegrationTest extends AbstractIntegrationTest
 
         integration.resumeProcessing();
         server.verifyProperty("key: name", "expectedValue: terry");
+    }
+
+    @Test
+    public void shouldSupportMultipleClients()
+    {
+        client("session1").setProperty("key: name", "value: sam", "expectSuccess: true");
+
+        // Both clients see the broadcasted message.
+        client("session1").verifyMessage("SetPropertyResponse");
+        client("session2").verifyMessage("SetPropertyResponse");
     }
 
     @Test
