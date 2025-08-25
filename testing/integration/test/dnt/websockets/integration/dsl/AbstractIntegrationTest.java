@@ -1,7 +1,10 @@
 package dnt.websockets.integration.dsl;
 
 import dnt.websockets.client.ClientTextMessageHandler;
-import dnt.websockets.communications.*;
+import dnt.websockets.communications.AbstractMessage;
+import dnt.websockets.communications.GetPropertyResponse;
+import dnt.websockets.communications.PushMessage;
+import dnt.websockets.communications.SetPropertyRequest;
 import dnt.websockets.integration.IntegrationExecutionLayer;
 import dnt.websockets.integration.PushMessageCollector;
 import dnt.websockets.server.RequestProcessor;
@@ -38,7 +41,7 @@ public abstract class AbstractIntegrationTest
     @BeforeClass
     public static void beforeClass() throws Exception
     {
-        ClientTextMessageHandler.OBJECT_MAPPER.writeValueAsBytes(new SetPropertyResponse(1));
+        ClientTextMessageHandler.OBJECT_MAPPER.writeValueAsBytes(new GetPropertyResponse(1, "key"));
         ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsBytes(new SetPropertyRequest("key", "value"));
     }
 

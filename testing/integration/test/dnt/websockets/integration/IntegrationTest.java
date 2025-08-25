@@ -36,7 +36,8 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void shouldFailIfNoResponse()
     {
-        client.setProperty("key: do_not_send_response", "value: true", "expectSuccess: false");
+        client.setProperty("key: do_not_send_response", "value: true",
+                "expectSuccess: false", "expectedErrorMessage: No response received");
     }
 
     @Test
@@ -82,24 +83,28 @@ public class IntegrationTest extends AbstractIntegrationTest
     @Test
     public void shouldNotAcceptEmptyValue()
     {
-        client.setProperty("key: name", "value: ", "expectSuccess: false");
+        client.setProperty("key: name", "value: ",
+                "expectSuccess: false", "expectedErrorMessage: Value cannot be empty.");
     }
 
     @Test
     public void shouldNotAcceptEmptyKey()
     {
-        client.setProperty("key: ", "value: sam", "expectSuccess: false");
+        client.setProperty("key: ", "value: sam",
+                "expectSuccess: false", "expectedErrorMessage: Key cannot be empty.");
     }
 
     @Test
     public void shouldNotAcceptNullValue()
     {
-        client.setProperty("key: name", "value: <NULL>", "expectSuccess: false");
+        client.setProperty("key: name", "value: <NULL>",
+                "expectSuccess: false", "expectedErrorMessage: Value cannot be empty.");
     }
 
     @Test
     public void shouldNotAcceptNullKey()
     {
-        client.setProperty("key: <NULL>", "value: sam", "expectSuccess: false");
+        client.setProperty("key: <NULL>", "value: sam",
+                "expectSuccess: false", "expectedErrorMessage: Key cannot be empty.");
     }
 }

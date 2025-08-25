@@ -44,6 +44,22 @@ public class Result<S, E>
         }
     }
 
+    public void ifSuccess(Consumer<S> errorConsumer)
+    {
+        if(isSuccess())
+        {
+            errorConsumer.accept(successData);
+        }
+    }
+
+    public void ifError(Consumer<E> errorConsumer)
+    {
+        if(hasFailed())
+        {
+            errorConsumer.accept(errorData);
+        }
+    }
+
     public <NewS, NewE> Result<NewS, NewE> map(Function<S, NewS> successFunction, Function<E, NewE> errorFunction)
     {
         if(isSuccess())
