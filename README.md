@@ -14,8 +14,15 @@ I think we did this was, because spinning up an http server is quick and easy, a
 
 ##  Quick Start
 
+Step through this test to see the workings.
 `dnt.websockets.integration.IntegrationTest` is the goal of this repository, a quick IT that tests 
 the implementation, without the websocket infrastructure.
+
+### Compare against these test
+Same interfaces, just wired up for the real world.
+- `dnt.websockets.integration.vertx.IntegrationVertxTest` (uses websockets)
+- `dnt.websockets.integration.maybecool.IntegrationTcpTest` (maybe cool, uses old school TCP/IP)
+- `dnt.websockets.integration.also.IntegrationEventBusTest` (also, uses event bus model)
 
 Repo Link
 https://github.com/lmax-north/websocket-integration-test
@@ -40,6 +47,7 @@ It may not be the nicest example, but it shows that it is possible.
 - Finish
   - Rest
   - Maybe cool
+  - Also
   - Feedback `/give`
 
 
