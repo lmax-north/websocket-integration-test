@@ -15,7 +15,7 @@ I think we did this was, because spinning up an http server is quick and easy, a
 ##  Quick Start
 
 Step through this test to see the workings.
-`dnt.websockets.integration.IntegrationTest` is the goal of this repository, a quick IT that tests 
+`ToClientIntegrationTest` + `ToServerIntegrationTest` is the goal of this repository, a quick IT that tests 
 the implementation, without the websocket infrastructure.
 
 ```mermaid
@@ -56,9 +56,9 @@ sequenceDiagram
 
 ### Compare against these test
 Same interfaces, just wired up for the real world.
-- `dnt.websockets.integration.vertx.IntegrationWebSocketTest` (uses websockets)
-- `dnt.websockets.integration.maybecool.IntegrationTcpTest` (maybe cool, uses old school TCP/IP)
-- `dnt.websockets.integration.also.IntegrationEventBusTest` (also, uses event bus model)
+- `dnt.websockets.integration.ToServerWebSocketTest` and `dnt.websockets.integration.ToClientWebSocketTest` (uses websockets)
+- `dnt.websockets.integration.IntegrationTcpTest` (maybe cool, uses old school TCP/IP)
+- `dnt.websockets.integration.IntegrationEventBusTest` (also, uses event bus model)
 
 Repo Link
 https://github.com/lmax-north/websocket-integration-test

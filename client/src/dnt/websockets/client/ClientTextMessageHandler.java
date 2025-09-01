@@ -5,7 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import dnt.websockets.communications.*;
+import dnt.websockets.infrastructure.ExecutionLayer;
+import dnt.websockets.messages.*;
 import io.vertx.core.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,28 +18,26 @@ public class ClientTextMessageHandler implements Handler<String>
     public static final ObjectMapper OBJECT_MAPPER = newClientObjectMapper();
     private static final ObjectReader MESSAGE_READER = getClientMessageReader(OBJECT_MAPPER);
 
-    private final ResponseVisitor processor;
-    private final PushMessageVisitor pushMessageProcessor;
+    private final MessageVisitor messageProcessor;
+    private final ExecutionLayer executionLayer;
 
-    public ClientTextMessageHandler(ExecutionLayer executionLayer, PushMessageVisitor pushMessageProcessor)
+    public ClientTextMessageHandler(ExecutionLayer executionLayer, MessageVisitor messageProcessor)
     {
-        this.pushMessageProcessor = pushMessageProcessor;
-        this.processor = new ResponseProcessor(executionLayer);
+        this.messageProcessor = messageProcessor;
+        this.executionLayer = executionLayer;
     }
 
     @Override
     public void handle(String maybeJson)
     {
-        LOGGER.debug("Raw input {}", maybeJson);
+        LOGGER.debug("Client <-- JSON <-- Server | {}", maybeJson);
         try
         {
             AbstractMessage message = MESSAGE_READER.readValue(maybeJson);
-            if(message instanceof AbstractResponse)
+            if(message instanceof AbstractResponse response)
             {
-                handle((AbstractResponse)message);
-                return;
+                handleResponse(response);
             }
-
             handle(message);
         }
         catch (JsonProcessingException e)
@@ -47,14 +46,14 @@ public class ClientTextMessageHandler implements Handler<String>
         }
     }
 
-    private void handle(AbstractResponse response)
+    private void handleResponse(AbstractResponse response)
     {
-        response.visit(processor);
+        executionLayer.serverResponseToRequest(response);
     }
 
     private void handle(AbstractMessage message)
     {
-        message.visit(pushMessageProcessor);
+        message.visit(executionLayer, messageProcessor);
     }
 
     private static ObjectMapper newClientObjectMapper()
@@ -62,7 +61,9 @@ public class ClientTextMessageHandler implements Handler<String>
         ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.ALWAYS);
         mapper.registerSubtypes(new NamedType(GetPropertyResponse.class, GetPropertyResponse.class.getSimpleName()));
         mapper.registerSubtypes(new NamedType(SetPropertyResponse.class, SetPropertyResponse.class.getSimpleName()));
-        mapper.registerSubtypes(new NamedType(PushMessage.class, PushMessage.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(ServerPushMessage.class, ServerPushMessage.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(ErrorResponse.class, ErrorResponse.class.getSimpleName()));
+        mapper.registerSubtypes(new NamedType(GetStatusRequest.class, GetStatusRequest.class.getSimpleName()));
         return mapper;
     }
     private static ObjectReader getClientMessageReader(ObjectMapper mapper)
