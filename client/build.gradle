@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation      platform('org.junit:junit-bom:5.10.0')
+    testImplementation      'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly         'org.junit.platform:junit-platform-launcher'
+
+
+    implementation          project(':common')
+    implementation          project(':infrastructure')
+    implementation          project(':websockets-vertx')
+    implementation          project(':server')
+    implementation          'com.fasterxml.jackson.core:jackson-databind:2.20.0'
+    implementation          'io.vertx:vertx-core:5.0.4'
+    implementation          'org.slf4j:slf4j-simple:2.0.17'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['test']
+        }
+        resources {
+            srcDirs = ['resources']
+        }
+    }
+}

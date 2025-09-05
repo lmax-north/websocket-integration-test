@@ -1,0 +1,8 @@
+rootProject.name = 'websocket-integration-test'
+
+include 'common'
+include 'infrastructure'
+include 'client'
+include 'server'
+include 'websockets-vertx'
+include 'testing:integration'
