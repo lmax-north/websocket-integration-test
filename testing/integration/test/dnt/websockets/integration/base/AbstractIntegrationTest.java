@@ -13,35 +13,43 @@ import dnt.websockets.messages.GetPropertyResponse;
 import dnt.websockets.messages.SetPropertyRequest;
 import dnt.websockets.server.ServerMessageProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Map;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractIntegrationTest
 {
+    static
+    {
+        System.setProperty("org.slf4j.simpleLogger.log.dnt.websockets", "DEBUG");
+    }
     private final ServerMessageProcessor serverMessageProcessor = new ServerMessageProcessor();
     private final ClientMessageProcessor clientMessageProcessor = new ClientMessageProcessor();
     private final ClientMessageProcessor clientMessageProcessor2 = new ClientMessageProcessor();
 
-    private final MessageCollector serverMessageCollector = new MessageCollector("Abstract Integration Test Server", serverMessageProcessor);
-    private final MessageCollector clientMessageCollector = new MessageCollector("Abstract Integration Test Client", clientMessageProcessor);
-    private final MessageCollector clientMessageCollector2 = new MessageCollector("Abstract Integration Test Client", clientMessageProcessor2);
+    private final MessageCollector testServerMessageCollector = new MessageCollector("Abstract Integration Test Server", serverMessageProcessor);
+    private final MessageCollector testClientMessageCollector = new MessageCollector("Abstract Integration Test Client", clientMessageProcessor);
+    private final MessageCollector testClientMessageCollector2 = new MessageCollector("Abstract Integration Test Client 2", clientMessageProcessor2);
 
-    private final IntegrationExecutionLayer executionLayer = new IntegrationExecutionLayer(serverMessageCollector, clientMessageCollector);
+    private final IntegrationExecutionLayer executionLayer = new IntegrationExecutionLayer(
+            testServerMessageCollector,
+            new MessageCollector("Client Test Collector (Multi)",
+                    testClientMessageCollector,
+                    testClientMessageCollector2));
 
     protected final ServerDriver serverDriver = new ServerDriver(executionLayer, serverMessageProcessor);
     protected final ClientDriver clientDriver = new ClientDriver(executionLayer, clientMessageProcessor);
 
-    protected final ServerDsl server = new ServerDsl(serverDriver, serverMessageCollector);
-    protected final ClientDsl client = new ClientDsl(clientDriver, clientMessageCollector);
+    protected final ServerDsl server = new ServerDsl(serverDriver, testServerMessageCollector);
+    protected final ClientDsl client = new ClientDsl(clientDriver, testClientMessageCollector);
     protected final IntegrationDsl integration = new IntegrationDsl(executionLayer);
 
     protected final ClientDriver clientDriver2 = new ClientDriver(executionLayer, clientMessageProcessor2);
-    protected final ClientDsl client2 = new ClientDsl(clientDriver2, clientMessageCollector2);
+    protected final ClientDsl client2 = new ClientDsl(clientDriver2, testClientMessageCollector2);
 
     private final Map<String, ClientDsl> clients = Map.of("session1", client, "session2", client2);
 
@@ -52,21 +60,21 @@ public abstract class AbstractIntegrationTest
         return clientDsl;
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void warmUpObjectMappers() throws Exception
     {
         ClientTextMessageHandler.OBJECT_MAPPER.writeValueAsBytes(new GetPropertyResponse(1, "key"));
         ServerTextMessageHandler.OBJECT_MAPPER.writeValueAsBytes(new SetPropertyRequest("key", "value"));
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
-        executionLayer.register("session1", new ClientTextMessageHandler(executionLayer, clientMessageCollector));
-        executionLayer.register("session2", new ClientTextMessageHandler(executionLayer, clientMessageCollector2));
+        executionLayer.register("session1", new ClientTextMessageHandler(executionLayer, testClientMessageCollector));
+        executionLayer.register("session2", new ClientTextMessageHandler(executionLayer, testClientMessageCollector2));
     }
 
-    @After
+    @AfterEach
     public void tearDown()
     {
         boolean complete = integration.isComplete();

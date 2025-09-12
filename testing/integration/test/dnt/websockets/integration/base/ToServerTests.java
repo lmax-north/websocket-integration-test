@@ -5,8 +5,9 @@ public interface ToServerTests
     void clientShouldRequestAndSucceed();
     void clientShouldRequestAndFail();
     void clientShouldPushMessage();
-    void shouldSupportMultipleClients();
     void shouldFailOnNoResponseReceived();
+
+    void shouldSupportMultipleClients();
 
     void shouldNotAcceptEmptyValueWhenSettingProperty();
     void shouldNotAcceptEmptyKeySettingProperty();

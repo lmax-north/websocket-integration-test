@@ -46,7 +46,7 @@ allprojects {
 }
 
 test {
-    useJUnit()
+    useJUnitPlatform()
     dependsOn(':testing:integration:test')
     dependsOn(':infrastructure:test')
 }

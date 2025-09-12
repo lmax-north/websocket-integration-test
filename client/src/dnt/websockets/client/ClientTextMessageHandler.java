@@ -30,13 +30,13 @@ public class ClientTextMessageHandler implements Handler<String>
     @Override
     public void handle(String maybeJson)
     {
-        LOGGER.debug("Client <-- JSON <-- Server | {}", maybeJson);
+        LOGGER.debug("Client <-- text <-- Server | Received {}", maybeJson);
         try
         {
             AbstractMessage message = MESSAGE_READER.readValue(maybeJson);
             if(message instanceof AbstractResponse response)
             {
-                handleResponse(response);
+                executionLayer.serverCompleteResponse(response);
             }
             handle(message);
         }
@@ -44,11 +44,6 @@ public class ClientTextMessageHandler implements Handler<String>
         {
             LOGGER.warn("Failed to decode json. Error: {}, '{}'", e.getMessage(), maybeJson);
         }
-    }
-
-    private void handleResponse(AbstractResponse response)
-    {
-        executionLayer.serverResponseToRequest(response);
     }
 
     private void handle(AbstractMessage message)

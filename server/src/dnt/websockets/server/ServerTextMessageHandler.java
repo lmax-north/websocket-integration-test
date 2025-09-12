@@ -31,16 +31,14 @@ public class ServerTextMessageHandler implements Handler<String>
     @Override
     public void handle(String maybeJson)
     {
-        LOGGER.debug("Client --> JSON --> Server | {}", maybeJson);
+        LOGGER.debug("Client --> text --> Server | Received {}", maybeJson);
         try
         {
             AbstractMessage message = MESSAGE_READER.readValue(maybeJson);
             if(message instanceof AbstractResponse response)
             {
-                handleResponse(response);
-                return;
+                executionLayer.clientCompleteResponse(response);
             }
-
             handle(MESSAGE_READER.<AbstractMessage>readValue(maybeJson));
         }
         catch (JsonProcessingException e)
@@ -49,20 +47,9 @@ public class ServerTextMessageHandler implements Handler<String>
         }
     }
 
-    private void handleResponse(AbstractResponse response)
-    {
-        executionLayer.clientResponseToRequest(response);
-    }
-
     public void handle(AbstractMessage message)
     {
         message.visit(executionLayer, processor);
-    }
-
-    public void send(AbstractMessage message)
-    {
-        LOGGER.debug("Client     Pojo <--- Server | Sending {}", message);
-        executionLayer.serverSend(message);
     }
 
     private static ObjectMapper newServerObjectMapper()

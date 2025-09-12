@@ -12,7 +12,6 @@ import education.common.result.Result;
 import io.vertx.core.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class ServerDsl
 {
@@ -65,5 +64,10 @@ public class ServerDsl
     private static <R> R join(Future<R> future)
     {
         return future.toCompletionStage().toCompletableFuture().join();
+    }
+
+    public void clearMessages()
+    {
+        this.collector.clear();
     }
 }

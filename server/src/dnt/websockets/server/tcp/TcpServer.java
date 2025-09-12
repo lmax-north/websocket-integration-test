@@ -1,9 +1,10 @@
 package dnt.websockets.server.tcp;
 
-import dnt.websockets.messages.AbstractMessage;
-import dnt.websockets.messages.MessageVisitor;
 import dnt.websockets.infrastructure.ExecutionLayer;
 import dnt.websockets.infrastructure.Publisher;
+import dnt.websockets.messages.AbstractMessage;
+import dnt.websockets.messages.AbstractResponse;
+import dnt.websockets.messages.MessageVisitor;
 import dnt.websockets.server.ServerExecutionLayer;
 import dnt.websockets.server.ServerMessageProcessor;
 import dnt.websockets.server.ServerTextMessageHandler;
@@ -56,6 +57,7 @@ public class TcpServer implements Runnable
         {
             // Do nothing
         }
+
         finally
         {
             LOGGER.info("Server stopped.");
@@ -67,7 +69,8 @@ public class TcpServer implements Runnable
         try(final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream())))
         {
             final Publisher messagePublisher = new TcpPublisher(socket);
-            final ExecutionLayer executorLayer = new ServerExecutionLayer(VertxAsyncExecutor.newExecutor(VERTX), messagePublisher); // Use vertx for now.
+            final VertxAsyncExecutor<AbstractResponse> executor = new VertxAsyncExecutor.Builder(VERTX).timeoutMillis(2_000L).build();
+            final ExecutionLayer executorLayer = new ServerExecutionLayer(executor, messagePublisher); // Use vertx for now.
             final ServerTextMessageHandler textMessageHandler = new ServerTextMessageHandler(executorLayer, requestProcessor);
             executionLayers.add(executorLayer);
 

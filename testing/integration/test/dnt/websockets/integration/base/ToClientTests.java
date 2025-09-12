@@ -4,7 +4,8 @@ public interface ToClientTests
 {
     void serverShouldRequestAndSucceed();
     void serverShouldRequestAndFail();
+    void shouldFailOnNoResponseReceived();
+
     void serverShouldBroadcast();
     void shouldSupportMultipleClients();
-    void shouldFailOnNoResponseReceived();
 }

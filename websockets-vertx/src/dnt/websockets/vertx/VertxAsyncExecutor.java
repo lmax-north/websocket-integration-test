@@ -4,37 +4,28 @@ import io.vertx.core.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class VertxAsyncExecutor<Response>
+public class VertxAsyncExecutor<Response> implements AsyncExecutor<Response>
 {
     private final Vertx vertx;
     private final UniqueIdGenerator uniqueIdGenerator;
     private final Map<Long, AsyncRequestTracking<Response>> asyncPromiseByCorrelationId = new HashMap<>();
-    private volatile Throwable timeoutResponse;
-    private volatile String timeoutMessage;
+    private final long timeoutMillis;
 
     public VertxAsyncExecutor(final Vertx vertx, final UniqueIdGenerator uniqueIdGenerator)
     {
+        this(vertx, uniqueIdGenerator, 5_000);
+    }
+
+    VertxAsyncExecutor(final Vertx vertx, final UniqueIdGenerator uniqueIdGenerator, long timeoutMillis)
+    {
         this.vertx = vertx;
         this.uniqueIdGenerator = uniqueIdGenerator;
+        this.timeoutMillis = timeoutMillis;
     }
 
-    public VertxAsyncExecutor<Response> onTimeoutReturn(final Throwable timeoutResponse)
-    {
-        assert timeoutMessage == null;
-        this.timeoutResponse = timeoutResponse;
-        return this;
-    }
-
-    public VertxAsyncExecutor<Response> onTimeoutReturn(final String timeoutMessage)
-    {
-        assert timeoutResponse == null;
-        this.timeoutMessage = timeoutMessage;
-        return this;
-    }
-
+    @Override
     public Future<Response> execute(final AsyncRequest asyncRequest)
     {
         final long correlationId = uniqueIdGenerator.generateId();
@@ -46,7 +37,7 @@ public class VertxAsyncExecutor<Response>
     private Promise<Response> createAndRegisterPromise(final long correlationId)
     {
         final Promise<Response> asyncPromise = Promise.promise();
-        final long timerId = vertx.setTimer(5_000, id -> timeout(correlationId));
+        final long timerId = vertx.setTimer(timeoutMillis, id -> timeout(correlationId));
         final AsyncRequestTracking<Response> existingPromise;
         synchronized (asyncPromiseByCorrelationId)
         {
@@ -62,6 +53,7 @@ public class VertxAsyncExecutor<Response>
         return asyncPromise;
     }
 
+    @Override
     public void onResponseReceived(final long correlationId, final Response response)
     {
         final AsyncRequestTracking<Response> asyncRequest;
@@ -81,20 +73,6 @@ public class VertxAsyncExecutor<Response>
         asyncRequest.context.runOnContext(handler);
     }
 
-    public void onError(final long correlationId, final String message)
-    {
-        final AsyncRequestTracking<Response> asyncRequest;
-        synchronized (asyncPromiseByCorrelationId)
-        {
-            asyncRequest = asyncPromiseByCorrelationId.remove(correlationId);
-        }
-        if (asyncRequest != null)
-        {
-            vertx.cancelTimer(asyncRequest.timerId);
-            onRequestContext(asyncRequest, v -> asyncRequest.promise.fail(message));
-        }
-    }
-
     private void timeout(final long correlationId)
     {
         final AsyncRequestTracking<Response> asyncRequest;
@@ -104,14 +82,7 @@ public class VertxAsyncExecutor<Response>
         }
         if (asyncRequest != null)
         {
-            if (timeoutResponse != null)
-            {
-                onRequestContext(asyncRequest, v -> asyncRequest.promise.tryFail(timeoutResponse));
-            }
-            else
-            {
-                onRequestContext(asyncRequest, v -> asyncRequest.promise.tryFail(Objects.requireNonNullElse(timeoutMessage, "Request timed out with correlation id - " + correlationId)));
-            }
+            onRequestContext(asyncRequest, v -> asyncRequest.promise.tryFail("Request timed out with correlation id - " + correlationId));
         }
     }
 
@@ -129,29 +100,36 @@ public class VertxAsyncExecutor<Response>
         }
     }
 
-    public interface UniqueIdGenerator
+    public static class Builder
     {
-        long generateId();
-    }
+        private final Vertx vertx;
+        private long initialCorrelationId = System.currentTimeMillis() % 100_000;
+        private long timeoutMillis = 5_000;
 
-    @FunctionalInterface
-    public interface AsyncRequest
-    {
-        void invoke(long correlationId);
-    }
-
-    public static <T> VertxAsyncExecutor<T> newExecutor(Vertx vertx)
-    {
-        final VertxAsyncExecutor.UniqueIdGenerator uniqueIdGenerator = new VertxAsyncExecutor.UniqueIdGenerator()
+        public Builder(Vertx vertx)
         {
-            private final AtomicLong nextCorrelationId = new AtomicLong(System.currentTimeMillis() % 100_000);
+            this.vertx = vertx;
+        }
 
-            @Override
-            public long generateId()
+        public Builder timeoutMillis(long timeoutMillis)
+        {
+            this.timeoutMillis = timeoutMillis;
+            return this;
+        }
+
+        public <T> VertxAsyncExecutor<T> build()
+        {
+            final UniqueIdGenerator uniqueIdGenerator = new UniqueIdGenerator()
             {
-                return nextCorrelationId.getAndIncrement();
-            }
-        };
-        return new VertxAsyncExecutor<>(vertx, uniqueIdGenerator);
+                private final AtomicLong nextCorrelationId = new AtomicLong(initialCorrelationId);
+
+                @Override
+                public long generateId()
+                {
+                    return nextCorrelationId.getAndIncrement();
+                }
+            };
+            return new VertxAsyncExecutor<>(vertx, uniqueIdGenerator, timeoutMillis);
+        }
     }
 }

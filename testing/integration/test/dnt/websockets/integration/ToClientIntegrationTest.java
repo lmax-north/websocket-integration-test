@@ -2,24 +2,30 @@ package dnt.websockets.integration;
 
 import dnt.websockets.integration.base.AbstractIntegrationTest;
 import dnt.websockets.integration.base.ToClientTests;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-@RunWith(Enclosed.class)
+import java.util.List;
+
 public class ToClientIntegrationTest
 {
-    public static class MainTests extends AbstractIntegrationTest implements ToClientTests
+    private static final List<String> SESSIONS = List.of("session1", "session2");
+
+    @Nested
+    class MainTests extends AbstractIntegrationTest implements ToClientTests
     {
-        @Test
+        @Override @Test
         public void serverShouldRequestAndSucceed()
         {
             server.getStatusFromClient("client: session1", "expectedStatus: Wicked");
             client.setStatus("Fantastic");
             server.getStatusFromClient("client: session1", "expectedStatus: Fantastic");
+
+            client.verifyMessage("GetStatusRequest");
+            server.verifyMessage("GetStatusResponse");
         }
 
-        @Test
+        @Override @Test
         public void serverShouldRequestAndFail()
         {
             server.getStatusFromClient("client: session1", "expectedStatus: Wicked");
@@ -27,7 +33,7 @@ public class ToClientIntegrationTest
             server.getStatusFromClient("client: session1", "expectedErrorMessage: Request not accepted at this time.");
         }
 
-        @Test
+        @Override @Test
         public void serverShouldBroadcast()
         {
             client("session1").verifyNoMoreMessages();
@@ -39,7 +45,15 @@ public class ToClientIntegrationTest
             client("session2").verifyMessage("ServerPushMessage");
         }
 
-        @Test
+        @Override @Test
+        public void shouldFailOnNoResponseReceived()
+        {
+            server.getStatusFromClient("client: session1", "expectedStatus: Wicked");
+            client.setStatus("do_not_send_response");
+            server.getStatusFromClient("client: session1", "expectedErrorMessage: No response received");
+        }
+
+        @Override @Test
         public void shouldSupportMultipleClients()
         {
             client("session1").setStatus("OK");
@@ -48,13 +62,51 @@ public class ToClientIntegrationTest
             server.getStatusFromClient("client: session1", "expectedStatus: OK");
             server.getStatusFromClient("client: session2", "expectedStatus: Fine");
         }
+    }
 
-        @Test
+    @Nested
+    class ParameterisedTests extends AbstractIntegrationTest implements ToClientTests
+    {
+        @Override @Test
+        public void serverShouldRequestAndSucceed()
+        {
+            SESSIONS.forEach(this::serverShouldRequestAndSucceed);
+        }
+        public void serverShouldRequestAndSucceed(String source)
+        {
+            server.getStatusFromClient("client: " + source, "expectedStatus: Wicked");
+            client(source).setStatus("Fantastic");
+            server.getStatusFromClient("client: " + source, "expectedStatus: Fantastic");
+
+            client(source).verifyMessage("GetStatusRequest");
+            server.verifyMessage("GetStatusResponse");
+        }
+
+        @Override @Test
+        public void serverShouldRequestAndFail()
+        {
+            SESSIONS.forEach(this::serverShouldRequestAndFail);
+        }
+        public void serverShouldRequestAndFail(String source)
+        {
+            server.getStatusFromClient("client: " + source, "expectedStatus: Wicked");
+            client(source).setStatus("fail_requests");
+            server.getStatusFromClient("client: " + source, "expectedErrorMessage: Request not accepted at this time.");
+        }
+
+        @Override @Test
         public void shouldFailOnNoResponseReceived()
         {
-            server.getStatusFromClient("client: session1", "expectedStatus: Wicked");
-            client.setStatus("do_not_send_response");
-            server.getStatusFromClient("client: session1", "expectedErrorMessage: No response received");
+            SESSIONS.forEach(this::shouldFailOnNoResponseReceived);
         }
+        public void shouldFailOnNoResponseReceived(String source)
+        {
+            server.getStatusFromClient("client: " + source, "expectedStatus: Wicked");
+            client(source).setStatus("do_not_send_response");
+            server.getStatusFromClient("client: " + source, "expectedErrorMessage: No response received");
+        }
+
+        @Override public void serverShouldBroadcast() {}
+        @Override public void shouldSupportMultipleClients() {}
     }
 }

@@ -11,8 +11,8 @@ repositories {
 
 dependencies {
     testImplementation      platform('org.junit:junit-bom:5.10.0')
+    testImplementation      'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly         'org.junit.platform:junit-platform-launcher'
-
 
     implementation          project(':common')
     implementation          project(':infrastructure')
@@ -25,9 +25,9 @@ dependencies {
     implementation          'org.slf4j:slf4j-simple:2.0.17'
 
     testImplementation      'com.lmax:simple-dsl:3.0.0'
-    testImplementation      'junit:junit:4.13.2'
-    testImplementation      'org.assertj:assertj-core:3.27.4'
     testImplementation      'org.awaitility:awaitility:4.3.0'
+    testImplementation      'org.junit.jupiter:junit-jupiter-params:5.11.0'
+    testImplementation      'org.assertj:assertj-core:3.27.4'
 }
 
 sourceSets {
@@ -44,11 +44,11 @@ sourceSets {
             srcDirs = ['test']
         }
         resources {
-            srcDirs = ['resources']
+            srcDirs = ['testResources']
         }
     }
 }
 
 test {
-    useJUnit()
+    useJUnitPlatform()
 }
